@@ -9,6 +9,7 @@ import { slugify, formatDate } from "@/lib/utils";
 import type { Post, ActionResult } from "@/lib/types";
 import { formattingTools, formatMarkdown, type Format } from "@/lib/markdown-editor";
 import { MARKDOWN_EXAMPLE, MARKDOWN_GUIDE } from "@/content/markdown-guide";
+import { ToolbarIcon } from "@/components/admin/toolbar-icon";
 function localDate(iso?: string | null) {
   if (!iso) return "";
   const date = new Date(iso);
@@ -42,6 +43,10 @@ export function Editor({ post }: { post?: Post }) {
   const [caption, setCaption] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fileKey, setFileKey] = useState(0);
+  const [imageOpen, setImageOpen] = useState(false);
+  const [imageError, setImageError] = useState("");
+  const imageDialogRef = useRef<HTMLDialogElement>(null);
+  const imageSelectionRef = useRef({ start: 0, end: 0 });
   const dialogRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
@@ -54,6 +59,10 @@ export function Editor({ post }: { post?: Post }) {
     if (deleteOpen) dialogRef.current?.showModal();
     else dialogRef.current?.close();
   }, [deleteOpen]);
+  useEffect(() => {
+    if (imageOpen) imageDialogRef.current?.showModal();
+    else imageDialogRef.current?.close();
+  }, [imageOpen]);
   function save(nextStatus: "draft" | "published") {
     if (!formRef.current?.reportValidity()) return;
     const form = new FormData(formRef.current!);
@@ -103,35 +112,38 @@ export function Editor({ post }: { post?: Post }) {
   }
   function insertImage() {
     if (!file || !imageAlt.trim()) {
-      setMessage({
-        error: "Choose an image and add meaningful alt text first.",
-      });
+      setImageError("Choose an image and add meaningful alt text first.");
       return;
     }
+    setImageError("");
     startTransition(async () => {
       try {
         const form = new FormData();
         form.set("image", file);
         const result = await uploadImage(form);
         if (!result.url) {
-          setMessage(result);
+          setImageError(result.error || "Couldn’t upload the image. Please try again.");
           return;
         }
         const clean = (text: string) => text.replace(/\[|\]|"|\\|\r|\n/g, " ");
         const markdown = `\n\n![${clean(imageAlt)}](${result.url}${caption ? ` "${clean(caption)}"` : ""})\n\n`;
-        const start = textRef.current?.selectionStart ?? content.length;
-        const end = textRef.current?.selectionEnd ?? start;
-        setContent(content.slice(0, start) + markdown + content.slice(end));
+        const { start, end } = imageSelectionRef.current;
+        setContent((current) => current.slice(0, start) + markdown + current.slice(end));
         setDirty(true);
         setFile(null);
         setImageAlt("");
         setCaption("");
         setFileKey((v) => v + 1);
+        setImageOpen(false);
+        requestAnimationFrame(() => {
+          textRef.current?.focus();
+          textRef.current?.setSelectionRange(start + markdown.length, start + markdown.length);
+        });
         setMessage({
           success: "Image inserted. Save your article to keep the change.",
         });
       } catch {
-        setMessage({ error: "Couldn’t upload the image. Please try again." });
+        setImageError("Couldn’t upload the image. Please try again.");
       }
     });
   }
@@ -168,7 +180,7 @@ export function Editor({ post }: { post?: Post }) {
         ← writing desk
       </Link>
       <div className="editor-heading">
-        <h1>{id ? "Edit article." : "A new thought."}</h1>
+        <h1>{id ? "edit article." : "a new thought."}</h1>
         <span className="status">
           {status}
           {dirty ? " · unsaved" : ""}
@@ -220,23 +232,45 @@ export function Editor({ post }: { post?: Post }) {
             maxLength={500}
           />
         </label>
+        <div className="formatting-toolbar" role="group" aria-label="Markdown formatting">
+          {formattingTools.map(([kind, label]) => (
+            <button
+              key={kind}
+              type="button"
+              aria-label={label}
+              title={label}
+              disabled={busy}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => format(kind)}
+            >
+              <ToolbarIcon kind={kind} />
+            </button>
+          ))}
+          <span className="toolbar-divider" aria-hidden="true" />
+          <button
+            type="button"
+            aria-label="Insert image"
+            title="Insert image"
+            disabled={busy}
+            aria-haspopup="dialog"
+            onClick={() => {
+              imageSelectionRef.current = {
+                start: textRef.current?.selectionStart ?? content.length,
+                end: textRef.current?.selectionEnd ?? content.length,
+              };
+              setImageError("");
+              setImageOpen(true);
+            }}
+          >
+            <ToolbarIcon kind="image" />
+          </button>
+          <button type="button" aria-label="Copy formatting prompt" title="Copy formatting prompt" onClick={copyGuide}>
+            <ToolbarIcon kind="copy" />
+          </button>
+        </div>
         <div className="editor-split">
           <div className="markdown-editor">
             <label htmlFor="article-markdown" className="field-label">Markdown</label>
-            <div className="formatting-toolbar" role="group" aria-label="Markdown formatting">
-              {formattingTools.map(([kind, label]) => (
-                <button
-                  key={kind}
-                  type="button"
-                  title={`Insert ${label.toLowerCase()}`}
-                  disabled={busy}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => format(kind)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
             <textarea
               id="article-markdown"
               ref={textRef}
@@ -247,66 +281,27 @@ export function Editor({ post }: { post?: Post }) {
               aria-describedby="markdown-help"
               spellCheck
             />
-            <p className="field-hint" id="markdown-help">Select text, then choose a format. New articles start with examples to replace before publishing.</p>
           </div>
           <section className="preview" aria-label="Article preview">
             <span className="field-label">Preview</span>
             {content ? (
-              <Markdown content={content} />
+              <div className="preview-content" tabIndex={0} role="region" aria-label="Rendered article">
+                <Markdown content={content} />
+              </div>
             ) : (
-              <p className="preview-empty">Your words, as they’ll appear.</p>
+              <p className="preview-content preview-empty">Your words, as they’ll appear.</p>
             )}
           </section>
         </div>
+        <p className="field-hint markdown-help" id="markdown-help">Select text, then choose a format. Scroll each panel to read longer articles.</p>
+        <p className="field-hint" role="status">{guideMessage}</p>
         <details className="editor-details">
           <summary>Markdown examples & LLM formatting guide</summary>
           <p className="field-hint">Copy these rules with your text into an LLM, then paste its Markdown into the editor. This guide is separate from your article.</p>
-          <button className="button" type="button" onClick={copyGuide}>Copy formatting prompt</button>
-          <p className="field-hint" aria-live="polite">{guideMessage}</p>
           <label>
             Supported syntax and examples
             <textarea className="markdown-guide" readOnly value={MARKDOWN_GUIDE} rows={14} onFocus={(event) => event.target.select()} />
           </label>
-        </details>
-        <details className="editor-details">
-          <summary>Insert an image</summary>
-          <p className="field-hint">
-            Images are uploaded to a public bucket immediately, including images
-            in drafts. Only upload material you intend to share.
-          </p>
-          <label>
-            Image (PNG, JPEG, WebP; max 5 MB)
-            <input
-              key={fileKey}
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              onChange={(event) => setFile(event.target.files?.[0] || null)}
-            />
-          </label>
-          <label>
-            Alt text
-            <input
-              value={imageAlt}
-              onChange={(event) => setImageAlt(event.target.value)}
-              maxLength={500}
-            />
-          </label>
-          <label>
-            Caption (optional)
-            <input
-              value={caption}
-              onChange={(event) => setCaption(event.target.value)}
-              maxLength={500}
-            />
-          </label>
-          <button
-            type="button"
-            className="button"
-            onClick={insertImage}
-            disabled={busy}
-          >
-            Upload & insert
-          </button>
         </details>
         <details className="editor-details">
           <summary>Publication & search settings</summary>
@@ -397,6 +392,45 @@ export function Editor({ post }: { post?: Post }) {
           </p>
         )}
       </form>
+      <dialog
+        ref={imageDialogRef}
+        className="image-dialog"
+        aria-labelledby="image-dialog-title"
+        onCancel={(event) => {
+          if (busy) event.preventDefault();
+          else setImageOpen(false);
+        }}
+        onClose={() => setImageOpen(false)}
+      >
+        <h2 id="image-dialog-title">insert image.</h2>
+        <p className="field-hint">Images become public when uploaded, including images in drafts.</p>
+        <form onSubmit={(event) => { event.preventDefault(); insertImage(); }}>
+          <label>
+            Image (PNG, JPEG, WebP; max 5 MB)
+            <input
+              key={fileKey}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              required
+              disabled={busy}
+              onChange={(event) => setFile(event.target.files?.[0] || null)}
+            />
+          </label>
+          <label>
+            Alt text
+            <input value={imageAlt} onChange={(event) => setImageAlt(event.target.value)} maxLength={500} required disabled={busy} />
+          </label>
+          <label>
+            Caption (optional)
+            <input value={caption} onChange={(event) => setCaption(event.target.value)} maxLength={500} disabled={busy} />
+          </label>
+          {imageError && <p className="form-error" role="alert">{imageError}</p>}
+          <div className="dialog-actions">
+            <button className="button" type="button" disabled={busy} onClick={() => setImageOpen(false)}>Cancel</button>
+            <button className="button primary" type="submit" disabled={busy}>{busy ? "Uploading…" : "Upload & insert"}</button>
+          </div>
+        </form>
+      </dialog>
       <dialog
         ref={dialogRef}
         onCancel={() => setDeleteOpen(false)}

@@ -9,7 +9,7 @@ export const formattingTools = [
   ["quote", "Quote"],
   ["bullet", "Bullet list"],
   ["number", "Numbered list"],
-  ["task", "Checklist"],
+  ["source", "Sources"],
   ["code", "Inline code"],
   ["codeblock", "Code block"],
   ["rule", "Divider"],
@@ -24,6 +24,23 @@ export function formatMarkdown(
   format: Format,
 ) {
   const selected = value.slice(start, end);
+  if (format === "source") {
+    const heading = /^## sources[ \t]*$/im.exec(value);
+    let position = value.length;
+    if (heading) {
+      const sectionStart = heading.index + heading[0].length;
+      const nextHeading = /\n#{1,2} /.exec(value.slice(sectionStart));
+      if (nextHeading) position = sectionStart + nextHeading.index;
+    }
+    const prefix = heading ? "\n\n" : `${value ? "\n\n" : ""}## Sources\n\n`;
+    const entry = "- [Source title](https://example.com)\n\n";
+    const selection = position + prefix.length + 3;
+    return {
+      value: value.slice(0, position) + prefix + entry + value.slice(position),
+      start: selection,
+      end: selection + "Source title".length,
+    };
+  }
   let text = selected || "text";
   let before = "";
   let after = "";
@@ -37,13 +54,13 @@ export function formatMarkdown(
   };
   if (wrappers[format]) {
     [before, after] = wrappers[format];
-  } else if (["heading", "subheading", "quote", "bullet", "number", "task"].includes(format)) {
+  } else if (["heading", "subheading", "quote", "bullet", "number"].includes(format)) {
     start = start === 0 ? 0 : value.lastIndexOf("\n", start - 1) + 1;
     const lineEnd = value.indexOf("\n", end);
     end = lineEnd === -1 ? value.length : lineEnd;
     const lines = (value.slice(start, end) || "text").split("\n");
     const prefixes: Record<string, string> = {
-      heading: "## ", subheading: "### ", quote: "> ", bullet: "- ", task: "- [ ] ",
+      heading: "## ", subheading: "### ", quote: "> ", bullet: "- ",
     };
     text = lines.map((line, i) => `${format === "number" ? `${i + 1}. ` : prefixes[format]}${line}`).join("\n");
   } else {

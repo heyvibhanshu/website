@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { requireAdminRoute } from "@/lib/admin-route";
 import { AdminPathProvider } from "@/components/admin/admin-path";
 export const metadata: Metadata = {
-  title: "Private writing desk",
+  title: "Writing Desk",
   robots: { index: false, follow: false },
   openGraph: null,
   twitter: null,

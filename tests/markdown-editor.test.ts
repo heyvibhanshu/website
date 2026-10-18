@@ -2,6 +2,14 @@ import { describe, expect, it } from "vitest";
 import { formatMarkdown, formattingTools } from "../lib/markdown-editor";
 
 describe("Markdown editor formatting", () => {
+  it("adds optional sources at the end without duplicating an existing section", () => {
+    const first = formatMarkdown("An article.", 0, 2, "source");
+    expect(first.value).toBe("An article.\n\n## Sources\n\n- [Source title](https://example.com)\n\n");
+    expect(first.value.slice(first.start, first.end)).toBe("Source title");
+    const second = formatMarkdown(first.value, 0, 0, "source");
+    expect(second.value.match(/## Sources/g)).toHaveLength(1);
+    expect(second.value.match(/\[Source title\]/g)).toHaveLength(2);
+  });
   it("wraps the selection, preserves surrounding text, and selects the formatted words", () => {
     for (const [kind, expected] of [
       ["bold", "**words**"], ["italic", "*words*"],

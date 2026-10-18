@@ -687,12 +687,17 @@ input[type="file"]::file-selector-button {
   font-size: 27px;
 }
 .editor-split {
+  --editor-pane-height: 480px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 24px;
 }
 .markdown-input {
-  min-height: 440px;
+  display: block;
+  height: var(--editor-pane-height);
+  min-height: 0;
+  resize: none;
+  overflow: auto;
   font-family: var(--font-mono), monospace;
   font-size: 12px;
   line-height: 1.85;
@@ -700,27 +705,54 @@ input[type="file"]::file-selector-button {
 }
 .markdown-editor {
   min-width: 0;
-  margin-bottom: 20px;
 }
 .formatting-toolbar {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  overflow-x: auto;
   gap: 4px;
   padding: 8px;
   border: 1px solid #ccc8bf;
-  border-bottom: 0;
   background: var(--surface);
+  margin-bottom: 16px;
+  scrollbar-width: thin;
 }
 .formatting-toolbar button {
-  padding: 4px 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  height: 32px;
+  padding: 0;
   border: 1px solid var(--line);
   border-radius: 2px;
   background: var(--paper);
-  font-size: 11px;
+  font-size: 16px;
   line-height: 1.5;
 }
 .formatting-toolbar button:hover {
   background: #e8e5de;
+}
+.toolbar-letter {
+  white-space: nowrap;
+  font-size: 15px;
+}
+.toolbar-letter strong {
+  font-weight: 700;
+}
+.toolbar-letter em {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 19px;
+}
+.toolbar-divider {
+  flex: 0 0 1px;
+  height: 22px;
+  background: #ccc8bf;
+  margin-inline: 5px;
+}
+.markdown-help {
+  margin-block: 10px 14px;
 }
 .markdown-guide {
   font-family: var(--font-mono), monospace;
@@ -735,20 +767,22 @@ input[type="file"]::file-selector-button {
 .preview {
   min-width: 0;
 }
-.preview .prose {
+.preview-content {
+  height: var(--editor-pane-height);
+  overflow: auto;
   background: #fcfbf8;
   border: 1px solid var(--line);
-  min-height: 440px;
   padding: 16px;
+  scrollbar-width: thin;
+}
+.preview .prose {
   font-size: 17px;
 }
 .preview .prose h2 {
   font-size: 19px;
 }
 .preview-empty {
-  padding: 16px;
-  border: 1px solid var(--line);
-  min-height: 440px;
+  margin: 0;
   font-family: var(--font-newsreader), serif;
   color: var(--muted);
   font-size: 17px;
@@ -789,6 +823,13 @@ dialog {
 }
 dialog::backdrop {
   background: #2225;
+}
+.image-dialog {
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+.image-dialog > p {
+  margin-block: 12px 20px;
 }
 dialog h2 {
   font-size: 20px;
@@ -890,15 +931,9 @@ dialog p {
     margin-bottom: 30px;
   }
   .editor-split {
+    --editor-pane-height: 400px;
     grid-template-columns: 1fr;
-    gap: 0;
-  }
-  .preview {
-    margin-bottom: 25px;
-  }
-  .preview .prose,
-  .preview-empty {
-    min-height: 150px;
+    gap: 20px;
   }
   .editor-actions .danger {
     margin-left: 0;

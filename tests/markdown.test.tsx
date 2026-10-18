@@ -7,9 +7,8 @@ describe("untrusted Markdown", () => {
     const html = renderToStaticMarkup(<Markdown content={MARKDOWN_EXAMPLE} />);
     for (const tag of ["<h2>", "<h3>", "<h4>", "<strong>", "<em>", "<u>", "<del>", "<blockquote>", "<ul>", "<ol>", "<table>", "<img", "<iframe"])
       expect(html).toContain(tag);
-    expect(html).toContain("data-footnotes");
-    expect(html).toContain('type="checkbox"');
-    expect(html).toContain('disabled=""');
+    expect(html).toContain("Sources</h2>");
+    expect(html).not.toContain('type="checkbox"');
     expect(html).toContain('youtube-nocookie.com/embed/dQw4w9WgXcQ');
     expect(renderToStaticMarkup(<Markdown content={'A <u>**bold** and *italic*</u> word.'} />)).toContain('<u><strong>bold</strong> and <em>italic</em></u>');
   });

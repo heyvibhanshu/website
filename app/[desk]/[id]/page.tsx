@@ -4,6 +4,7 @@ import { requireOwner } from "@/lib/auth";
 import { Editor } from "@/components/admin/editor";
 import type { Post } from "@/lib/types";
 import { requireAdminRoute } from "@/lib/admin-route";
+export const metadata = { title: "Edit Article" };
 export default async function EditPost({
   params,
 }: {

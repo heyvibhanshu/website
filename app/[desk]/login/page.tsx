@@ -1,6 +1,7 @@
 import { LoginForm } from "@/components/admin/login-form";
 import { supabaseConfig } from "@/lib/supabase/config";
 import { requireAdminRoute } from "@/lib/admin-route";
+export const metadata = { title: "Sign In" };
 export default async function Login({
   searchParams,
   params,
@@ -14,8 +15,7 @@ export default async function Login({
   return (
     <>
       <div className="page-heading">
-        <p className="eyebrow">private</p>
-        <h1>The writing desk.</h1>
+        <h1>the writing desk.</h1>
         <p>A quiet place to put thoughts into words.</p>
       </div>
       {configured ? (
