@@ -6,12 +6,6 @@ const config: NextConfig = {
   experimental: { serverActions: { bodySizeLimit: "6mb" } },
   async redirects() {
     return [
-      { source: "/admin", destination: "/cms-admin", permanent: true },
-      {
-        source: "/admin/:path*",
-        destination: "/cms-admin/:path*",
-        permanent: true,
-      },
       { source: "/blog", destination: "/writing", permanent: true },
       { source: "/blog/:slug", destination: "/writing/:slug", permanent: true },
     ];

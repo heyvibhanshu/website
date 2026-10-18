@@ -1,6 +1,6 @@
 "use client";
 import { useActionState } from "react";
-import { login } from "@/app/cms-admin/actions";
+import { login } from "@/app/[desk]/actions";
 export function LoginForm() {
   const [state, action, pending] = useActionState(login, {});
   return (

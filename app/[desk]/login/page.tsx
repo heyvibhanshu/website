@@ -1,10 +1,14 @@
 import { LoginForm } from "@/components/admin/login-form";
 import { supabaseConfig } from "@/lib/supabase/config";
+import { requireAdminRoute } from "@/lib/admin-route";
 export default async function Login({
   searchParams,
+  params,
 }: {
   searchParams: Promise<{ error?: string }>;
+  params: Promise<{ desk: string }>;
 }) {
+  await requireAdminRoute(params);
   const { error } = await searchParams;
   const configured = Boolean(supabaseConfig());
   return (

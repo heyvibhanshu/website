@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+const desk = process.env.CMS_ADMIN_PATH;
 test("public notebook and private route boundaries", async ({
   page,
   request,
@@ -21,8 +22,8 @@ test("public notebook and private route boundaries", async ({
     "/",
     "/writing",
     "/about",
-    "/cms-admin",
-    "/cms-admin/new",
+    ...(desk ? [desk] : []),
+    ...(desk ? [`${desk}/new`] : []),
   ]) {
     await page.goto(path);
     expect(
@@ -31,10 +32,10 @@ test("public notebook and private route boundaries", async ({
       ),
     ).toBe(true);
   }
-  await expect(page).toHaveURL(/\/cms-admin\/login$/);
-  await expect(
-    page.getByRole("heading", { name: "A little setup first." }),
-  ).toBeVisible();
+  if (desk) {
+    await expect(page).toHaveURL(`${desk}/login`);
+    await expect(page.getByRole("heading", { name: "A little setup first." })).toBeVisible();
+  }
   await page.goto("/about");
   await expect(page.getByRole("img")).toBeVisible();
   const article = await request.get("/writing/this-does-not-exist");
@@ -42,7 +43,6 @@ test("public notebook and private route boundaries", async ({
   for (const [path, target] of [
     ["/blog", "/writing"],
     ["/blog/hello", "/writing/hello"],
-    ["/admin", "/cms-admin"],
   ]) {
     const response = await request.get(path, { maxRedirects: 0 });
     expect(response.status()).toBe(308);
@@ -52,7 +52,10 @@ test("public notebook and private route boundaries", async ({
   expect(rss.status()).toBe(200);
   expect(await rss.text()).not.toContain("<item>");
   const sitemap = await request.get("/sitemap.xml");
-  expect(await sitemap.text()).not.toContain("cms-admin");
+  if (desk) expect(await sitemap.text()).not.toContain(desk);
+  for (const path of ["/admin", "/admin/login", "/unconfigured-desk", "/unconfigured-desk/new"]) {
+    expect((await request.get(path, { maxRedirects: 0 })).status()).toBe(404);
+  }
   await page.goto("/");
   await page.screenshot({
     path: `/private/tmp/website-${testInfo.project.name}.png`,

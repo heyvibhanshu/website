@@ -3,11 +3,13 @@ import { z } from "zod";
 import { requireOwner } from "@/lib/auth";
 import { Editor } from "@/components/admin/editor";
 import type { Post } from "@/lib/types";
+import { requireAdminRoute } from "@/lib/admin-route";
 export default async function EditPost({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ desk: string; id: string }>;
 }) {
+  await requireAdminRoute(params);
   const { client } = await requireOwner();
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();

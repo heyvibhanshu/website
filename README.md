@@ -12,17 +12,17 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Without environment variables, the public pages show a genuine empty writing archive and `/cms-admin` explains setup. With Supabase configured, all public writing comes from the database. No sample articles are published.
+Without environment variables, the public pages show a genuine empty writing archive and the writing desk is disabled until its path is configured. With Supabase configured, all public writing comes from the database. No sample articles are published.
 
 ## Publish your first article
 
 1. Follow [Supabase setup](docs/setup.md): apply the migration, create your account, and authorize its UUID in the database.
-2. Open `/cms-admin` and sign in with your owner email and password.
+2. Open the path configured in `CMS_ADMIN_PATH` and sign in with your owner email and password.
 3. Choose **New article**, write Markdown, and **Save draft**. The slug is suggested from the title and can be edited.
 4. Add images with meaningful alt text and optional captions. Check the preview.
 5. Choose **Publish article**. Leave the date blank for immediate publication or choose a future date to schedule it.
 
-Return to the writing desk to edit, unpublish, or permanently delete an article after confirmation. `/admin` redirects to `/cms-admin`. Private routes are absent from navigation and marked `noindex`.
+Return to the writing desk to edit, unpublish, or permanently delete an article after confirmation. Private routes are absent from navigation and marked `noindex`.
 
 ## Edit the site
 

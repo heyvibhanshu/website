@@ -3,7 +3,8 @@ import { useRef, useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Markdown } from "@/components/writing/markdown";
-import { savePost, deletePost, uploadImage } from "@/app/cms-admin/actions";
+import { savePost, deletePost, uploadImage } from "@/app/[desk]/actions";
+import { useAdminPath } from "@/components/admin/admin-path";
 import { slugify, formatDate } from "@/lib/utils";
 import type { Post, ActionResult } from "@/lib/types";
 import { formattingTools, formatMarkdown, type Format } from "@/lib/markdown-editor";
@@ -16,6 +17,7 @@ function localDate(iso?: string | null) {
     .slice(0, 16);
 }
 export function Editor({ post }: { post?: Post }) {
+  const adminPath = useAdminPath();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -70,7 +72,7 @@ export function Editor({ post }: { post?: Post }) {
           setDirty(false);
           if (!date && nextStatus === "published")
             setDate(localDate(new Date().toISOString()));
-          if (!id) router.replace(`/cms-admin/${result.id}`);
+          if (!id) router.replace(`${adminPath}/${result.id}`);
           router.refresh();
         }
       } catch {
@@ -143,7 +145,7 @@ export function Editor({ post }: { post?: Post }) {
           return;
         }
         setDirty(false);
-        router.push("/cms-admin");
+        router.push(adminPath);
         router.refresh();
       } catch {
         setMessage({
@@ -157,7 +159,7 @@ export function Editor({ post }: { post?: Post }) {
     <>
       <Link
         className="text-link"
-        href="/cms-admin"
+        href={adminPath}
         onClick={(event) => {
           if (dirty && !window.confirm("Leave without saving your changes?"))
             event.preventDefault();

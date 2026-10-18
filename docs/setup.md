@@ -16,7 +16,7 @@ The table accepts one owner only. Authenticated users cannot change it. Changing
 
 4. Copy the project URL and **publishable key** from Project Settings → API into `.env.local`. Use exactly the variable names in `.env.example`. A legacy public anon key also works. **Never use a secret or service-role key.** None is required by this app.
 5. Set Authentication → URL Configuration → Site URL to your production origin. Add `http://localhost:3000` for local development if needed. Password sign-in has no redirect callback route. Review Supabase's auth rate limits and abuse protection before publishing.
-6. Restart the application. Visit `/cms-admin`, sign in, and create your first draft.
+6. Set `CMS_ADMIN_PATH` in your local and deployment environment to a single lowercase URL path segment of your choice (include its leading slash). It has no fallback: missing or invalid configuration disables the writing desk. Restart or redeploy, visit your configured path, sign in, and create your first draft. Never commit the actual value or use a `NEXT_PUBLIC_` variable for it.
 
 ## Storage
 

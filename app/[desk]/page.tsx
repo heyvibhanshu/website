@@ -3,7 +3,9 @@ import { requireOwner } from "@/lib/auth";
 import { logout } from "./actions";
 import { formatDate } from "@/lib/utils";
 import type { Post } from "@/lib/types";
-export default async function Dashboard() {
+import { requireAdminRoute } from "@/lib/admin-route";
+export default async function Dashboard({ params }: { params: Promise<{ desk: string }> }) {
+  const path = await requireAdminRoute(params);
   const { client } = await requireOwner();
   const { data, error } = await client
     .from("posts")
@@ -29,7 +31,7 @@ export default async function Dashboard() {
         <p>
           {posts.length} {posts.length === 1 ? "article" : "articles"}
         </p>
-        <Link className="button primary" href="/cms-admin/new">
+        <Link className="button primary" href={`${path}/new`}>
           New article
         </Link>
       </div>
@@ -37,7 +39,7 @@ export default async function Dashboard() {
         <ul className="admin-posts">
           {posts.map((post) => (
             <li key={post.id}>
-              <Link href={`/cms-admin/${post.id}`}>
+              <Link href={`${path}/${post.id}`}>
                 <span>{post.title}</span>
                 <span className="post-detail">
                   <span className="status">

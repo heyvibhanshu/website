@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: "Article not found", robots: { index: false } };
   const title = post.seo_title || post.title;
   const description = post.seo_description || post.description || undefined;
+  const preview = `/writing/${post.slug}/preview?v=${encodeURIComponent(post.updated_at)}`;
   return {
     title,
     description,
@@ -28,17 +29,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: post.published_at!,
       modifiedTime: post.updated_at,
       authors: [site.name],
-      images: post.cover_image
-        ? [{ url: post.cover_image }]
-        : [{ url: "/opengraph-image" }],
+      images: [{ url: preview, width: 1200, height: 630, alt: post.title }],
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: { card: "summary_large_image", title, description, images: [preview] },
   };
 }
 export default async function Article({ params }: Props) {
   const { slug } = await params;
   const post = await getPublishedPost(slug);
   if (!post) notFound();
+  const preview = `/writing/${post.slug}/preview?v=${encodeURIComponent(post.updated_at)}`;
   const posts = await getPublishedPosts();
   const index = posts.findIndex((p) => p.id === post.id);
   const older = posts[index + 1];
@@ -94,7 +94,7 @@ export default async function Article({ params }: Props) {
               url: `${site.domain}/about`,
             },
             mainEntityOfPage: `${site.domain}/writing/${post.slug}`,
-            image: post.cover_image || `${site.domain}/opengraph-image`,
+            image: post.cover_image || `${site.domain}${preview}`,
           }),
         }}
       />

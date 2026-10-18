@@ -119,7 +119,7 @@ vi.mock("@/lib/auth", () => ({
   },
 }));
 import { getPublishedPost, getPublishedPosts } from "../lib/posts";
-import { deletePost, savePost } from "../app/cms-admin/actions";
+import { deletePost, savePost } from "../app/[desk]/actions";
 const id = "11111111-1111-4111-8111-111111111111";
 function form(status: "draft" | "published", slug = "a-thought") {
   const data = new FormData();

@@ -1,17 +1,20 @@
 import "server-only";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
+import { getAdminPath } from "@/lib/admin-path";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseConfig } from "@/lib/supabase/config";
 export async function requireOwner() {
-  if (!supabaseConfig()) redirect("/cms-admin/login");
+  const path = getAdminPath();
+  if (!path) notFound();
+  if (!supabaseConfig()) redirect(`${path}/login`);
   const client = await createClient();
   const {
     data: { user },
     error,
   } = await client.auth.getUser();
-  if (error || !user) redirect("/cms-admin/login");
+  if (error || !user) redirect(`${path}/login`);
   const { data: owner, error: ownerError } = await client.rpc("is_site_owner");
   if (ownerError || owner !== true)
-    redirect("/cms-admin/login?error=unauthorized");
+    redirect(`${path}/login?error=unauthorized`);
   return { client, user };
 }

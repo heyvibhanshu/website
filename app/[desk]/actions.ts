@@ -12,10 +12,14 @@ import {
 } from "@/lib/validation";
 import type { ActionResult } from "@/lib/types";
 import { PUBLISHED_WRITING_TAG } from "@/lib/cache-policy";
+import { getAdminPath } from "@/lib/admin-path";
+import { notFound } from "next/navigation";
 export async function login(
   _previous: ActionResult,
   form: FormData,
 ): Promise<ActionResult> {
+  const path = getAdminPath();
+  if (!path) notFound();
   const parsed = loginSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: "Enter your email and password." };
   const client = await createClient();
@@ -27,22 +31,27 @@ export async function login(
     await client.auth.signOut();
     return { error: "This account is not authorized to manage the site." };
   }
-  redirect("/cms-admin");
+  redirect(path);
 }
 export async function logout() {
   const client = await createClient();
   await client.auth.signOut();
-  redirect("/cms-admin/login");
+  const path = getAdminPath();
+  if (!path) notFound();
+  redirect(`${path}/login`);
 }
 function refreshWriting(slug?: string, oldSlug?: string) {
   // Expire immediately: unpublishing must not serve a stale public article.
   updateTag(PUBLISHED_WRITING_TAG);
   revalidatePath("/writing", "layout");
-  ["/", "/writing", "/sitemap.xml", "/rss.xml", "/cms-admin"].forEach((p) =>
+  ["/", "/writing", "/sitemap.xml", "/rss.xml", getAdminPath()].filter((p): p is string => Boolean(p)).forEach((p) =>
     revalidatePath(p),
   );
-  if (slug) revalidatePath(`/writing/${slug}`);
-  if (oldSlug && oldSlug !== slug) revalidatePath(`/writing/${oldSlug}`);
+  for (const value of new Set([slug, oldSlug])) {
+    if (!value) continue;
+    revalidatePath(`/writing/${value}`);
+    revalidatePath(`/writing/${value}/preview`);
+  }
 }
 export async function savePost(form: FormData): Promise<ActionResult> {
   const { client } = await requireOwner();
