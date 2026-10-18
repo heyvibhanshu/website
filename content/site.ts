@@ -7,7 +7,6 @@ export const site = {
   email: "hey@vibhanshurathod.com",
   tagline: "be curious.",
   navigation: [
-    { href: "/", label: "home" },
     { href: "/writing", label: "writing" },
     { href: "/about", label: "about" },
   ],
