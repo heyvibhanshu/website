@@ -1,0 +1,62 @@
+import { test, expect } from "@playwright/test";
+test("public notebook and private route boundaries", async ({
+  page,
+  request,
+}, testInfo) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "hey, i'm vibhanshu." }),
+  ).toBeVisible();
+  await expect(page.getByText("A quiet page, for now.")).toBeVisible();
+  await expect(page.locator("body")).toHaveCSS(
+    "background-color",
+    "rgb(250, 249, 246)",
+  );
+  const main = await page.locator("main").boundingBox();
+  const header = await page.locator(".header-inner").boundingBox();
+  expect(Math.abs(main!.x - header!.x)).toBeLessThan(1);
+  for (const path of [
+    "/",
+    "/writing",
+    "/about",
+    "/cms-admin",
+    "/cms-admin/new",
+  ]) {
+    await page.goto(path);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+  await expect(page).toHaveURL(/\/cms-admin\/login$/);
+  await expect(
+    page.getByRole("heading", { name: "A little setup first." }),
+  ).toBeVisible();
+  await page.goto("/about");
+  await expect(page.getByRole("img")).toBeVisible();
+  const article = await request.get("/writing/this-does-not-exist");
+  expect(article.status()).toBe(404);
+  for (const [path, target] of [
+    ["/blog", "/writing"],
+    ["/blog/hello", "/writing/hello"],
+    ["/admin", "/cms-admin"],
+  ]) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(response.headers().location).toBe(target);
+  }
+  const rss = await request.get("/rss.xml");
+  expect(rss.status()).toBe(200);
+  expect(await rss.text()).not.toContain("<item>");
+  const sitemap = await request.get("/sitemap.xml");
+  expect(await sitemap.text()).not.toContain("cms-admin");
+  await page.goto("/");
+  await page.screenshot({
+    path: `/private/tmp/website-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+  expect(errors).toEqual([]);
+});
