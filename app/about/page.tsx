@@ -2,7 +2,7 @@ import Image from "next/image";
 import { about } from "@/content/about";
 import { Markdown } from "@/components/writing/markdown";
 export const metadata = {
-  title: "about me",
+  title: "About Me",
   description:
     "I'm Vibhanshu. I like building things, figuring out how they work, and occasionally writing about them.",
   alternates: { canonical: "/about" },

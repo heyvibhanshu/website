@@ -2,7 +2,7 @@ import { getPublishedPosts } from "@/lib/posts";
 import { EmptyWriting, PostList } from "@/components/writing/post-list";
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "writing",
+  title: "Writing",
   description:
     "Thoughts, ideas, experiments, and things I've learned along the way.",
   alternates: { canonical: "/writing" },

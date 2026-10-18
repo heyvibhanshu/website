@@ -1,7 +1,7 @@
 export const site = {
   name: "Vibhanshu Rathod",
   domain: "https://vibhanshurathod.com",
-  title: "Vibhanshu Rathod — a personal notebook",
+  title: "Vibhanshu Rathod",
   description:
     "A little corner of the internet. Thoughts, experiments, and things learned along the way by Vibhanshu Rathod.",
   email: "hey@vibhanshurathod.com",

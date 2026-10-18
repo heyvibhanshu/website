@@ -15,7 +15,7 @@ const newsreader = Newsreader({
 export const viewport: Viewport = { themeColor: "#FAF9F6" };
 export const metadata: Metadata = {
   metadataBase: new URL(site.domain),
-  title: { default: site.title, template: `%s — ${site.name}` },
+  title: { default: site.title, template: `%s | ${site.name}` },
   description: site.description,
   alternates: { types: { "application/rss+xml": "/rss.xml" } },
   openGraph: {
