@@ -1,7 +1,25 @@
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Markdown } from "../components/writing/markdown";
+import { MARKDOWN_EXAMPLE } from "../content/markdown-guide";
 describe("untrusted Markdown", () => {
+  it("renders the editor examples including safe underline and nested formatting", () => {
+    const html = renderToStaticMarkup(<Markdown content={MARKDOWN_EXAMPLE} />);
+    for (const tag of ["<h2>", "<h3>", "<h4>", "<strong>", "<em>", "<u>", "<del>", "<blockquote>", "<ul>", "<ol>", "<table>", "<img", "<iframe"])
+      expect(html).toContain(tag);
+    expect(html).toContain("data-footnotes");
+    expect(html).toContain('type="checkbox"');
+    expect(html).toContain('disabled=""');
+    expect(html).toContain('youtube-nocookie.com/embed/dQw4w9WgXcQ');
+    expect(renderToStaticMarkup(<Markdown content={'A <u>**bold** and *italic*</u> word.'} />)).toContain('<u><strong>bold</strong> and <em>italic</em></u>');
+  });
+  it("does not interpret underline attributes, escaped tags, or code as HTML", () => {
+    const html = renderToStaticMarkup(<Markdown content={'A <u onclick="alert(1)">word</u>. `<u>code</u>` and \\<u>escaped\\</u>.'} />);
+    expect(html).not.toContain('<u>');
+    expect(html).not.toContain('onclick=');
+    expect(html).toContain('&lt;u&gt;code&lt;/u&gt;');
+    expect(html).toContain('&lt;u&gt;escaped&lt;/u&gt;');
+  });
   it("discards raw HTML and javascript links", () => {
     const html = renderToStaticMarkup(
       <Markdown

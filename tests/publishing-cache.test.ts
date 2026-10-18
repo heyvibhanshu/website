@@ -176,14 +176,21 @@ describe("public cache and CMS mutations", () => {
   it("expires cached empty lists and draft 404s immediately on publish, then hides unpublished content", async () => {
     await getPublishedPosts();
     await getPublishedPost("a-thought");
-    expect((await savePost(form("published"))).error).toBeUndefined();
+    expect((await savePost(form("published"))).publishedPath).toBe("/writing/a-thought");
     expect(await getPublishedPosts()).toHaveLength(1);
     expect((await getPublishedPost("a-thought"))?.content).toBe(
       "Some writing.",
     );
-    expect((await savePost(form("draft"))).error).toBeUndefined();
+    expect((await savePost(form("draft"))).publishedPath).toBeUndefined();
     expect(await getPublishedPosts()).toEqual([]);
     expect(await getPublishedPost("a-thought")).toBeNull();
+  });
+  it("does not offer a public article link before its scheduled publication", async () => {
+    const scheduled = form("published");
+    scheduled.set("published_at", "2999-01-01T00:00:00Z");
+    const result = await savePost(scheduled);
+    expect(result.success).toBe("Publication scheduled.");
+    expect(result.publishedPath).toBeUndefined();
   });
   it("removes cached articles after a rename and deletion", async () => {
     await savePost(form("published"));

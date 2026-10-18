@@ -21,4 +21,5 @@ export type ActionResult = {
   success?: string;
   id?: string;
   url?: string;
+  publishedPath?: string;
 };

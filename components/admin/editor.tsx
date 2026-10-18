@@ -6,6 +6,8 @@ import { Markdown } from "@/components/writing/markdown";
 import { savePost, deletePost, uploadImage } from "@/app/cms-admin/actions";
 import { slugify, formatDate } from "@/lib/utils";
 import type { Post, ActionResult } from "@/lib/types";
+import { formattingTools, formatMarkdown, type Format } from "@/lib/markdown-editor";
+import { MARKDOWN_EXAMPLE, MARKDOWN_GUIDE } from "@/content/markdown-guide";
 function localDate(iso?: string | null) {
   if (!iso) return "";
   const date = new Date(iso);
@@ -21,7 +23,13 @@ export function Editor({ post }: { post?: Post }) {
   const [title, setTitle] = useState(post?.title || "");
   const [slug, setSlug] = useState(post?.slug || "");
   const [customSlug, setCustomSlug] = useState(Boolean(post));
-  const [content, setContent] = useState(post?.content || "");
+  const [content, setContent] = useState(post?.content ?? MARKDOWN_EXAMPLE);
+  const [publishedPath, setPublishedPath] = useState(
+    post?.status === "published" && post.published_at &&
+      new Date(post.published_at) <= new Date()
+      ? `/writing/${post.slug}` : "",
+  );
+  const [guideMessage, setGuideMessage] = useState("");
   const [status, setStatus] = useState(post?.status || "draft");
   const [date, setDate] = useState(localDate(post?.published_at));
   const [message, setMessage] = useState<ActionResult>({});
@@ -58,6 +66,7 @@ export function Editor({ post }: { post?: Post }) {
         if (result.id) {
           setId(result.id);
           setStatus(nextStatus);
+          setPublishedPath(result.publishedPath || "");
           setDirty(false);
           if (!date && nextStatus === "published")
             setDate(localDate(new Date().toISOString()));
@@ -70,6 +79,25 @@ export function Editor({ post }: { post?: Post }) {
         });
       }
     });
+  }
+  function format(kind: Format) {
+    const input = textRef.current;
+    if (!input) return;
+    const result = formatMarkdown(content, input.selectionStart, input.selectionEnd, kind);
+    setContent(result.value);
+    setDirty(true);
+    requestAnimationFrame(() => {
+      input.focus();
+      input.setSelectionRange(result.start, result.end);
+    });
+  }
+  async function copyGuide() {
+    try {
+      await navigator.clipboard.writeText(MARKDOWN_GUIDE);
+      setGuideMessage("Guide copied. Paste it into your LLM with your article text.");
+    } catch {
+      setGuideMessage("Select and copy the guide below.");
+    }
   }
   function insertImage() {
     if (!file || !imageAlt.trim()) {
@@ -191,17 +219,34 @@ export function Editor({ post }: { post?: Post }) {
           />
         </label>
         <div className="editor-split">
-          <label>
-            Markdown
+          <div className="markdown-editor">
+            <label htmlFor="article-markdown" className="field-label">Markdown</label>
+            <div className="formatting-toolbar" role="group" aria-label="Markdown formatting">
+              {formattingTools.map(([kind, label]) => (
+                <button
+                  key={kind}
+                  type="button"
+                  title={`Insert ${label.toLowerCase()}`}
+                  disabled={busy}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => format(kind)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             <textarea
+              id="article-markdown"
               ref={textRef}
               className="markdown-input"
               name="content"
               value={content}
               onChange={(event) => setContent(event.target.value)}
+              aria-describedby="markdown-help"
               spellCheck
             />
-          </label>
+            <p className="field-hint" id="markdown-help">Select text, then choose a format. New articles start with examples to replace before publishing.</p>
+          </div>
           <section className="preview" aria-label="Article preview">
             <span className="field-label">Preview</span>
             {content ? (
@@ -211,6 +256,16 @@ export function Editor({ post }: { post?: Post }) {
             )}
           </section>
         </div>
+        <details className="editor-details">
+          <summary>Markdown examples & LLM formatting guide</summary>
+          <p className="field-hint">Copy these rules with your text into an LLM, then paste its Markdown into the editor. This guide is separate from your article.</p>
+          <button className="button" type="button" onClick={copyGuide}>Copy formatting prompt</button>
+          <p className="field-hint" aria-live="polite">{guideMessage}</p>
+          <label>
+            Supported syntax and examples
+            <textarea className="markdown-guide" readOnly value={MARKDOWN_GUIDE} rows={14} onFocus={(event) => event.target.select()} />
+          </label>
+        </details>
         <details className="editor-details">
           <summary>Insert an image</summary>
           <p className="field-hint">
@@ -309,6 +364,11 @@ export function Editor({ post }: { post?: Post }) {
                 ? "Update published article"
                 : "Publish article"}
           </button>
+          {publishedPath && (
+            <a className="button" href={publishedPath} target="_blank" rel="noopener noreferrer">
+              View article ↗<span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          )}
           {id && (
             <button
               className="text-button danger"

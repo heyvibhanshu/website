@@ -1,11 +1,12 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import { remarkUnderline } from "@/lib/remark-underline";
 export function Markdown({ content }: { content: string }) {
   return (
     <div className="prose">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkUnderline]}
         rehypePlugins={[rehypeHighlight]}
         skipHtml
         components={{
@@ -63,7 +64,7 @@ export function Markdown({ content }: { content: string }) {
           },
           code({ className, children, node, ...props }) {
             void node;
-            if (className === "language-youtube") {
+            if (className?.split(/\s+/).includes("language-youtube")) {
               const id = String(children).trim();
               if (/^[a-zA-Z0-9_-]{11}$/.test(id))
                 return (

@@ -87,8 +87,11 @@ export async function savePost(form: FormData): Promise<ActionResult> {
           : "Couldn’t save this article. Please try again.",
     };
   refreshWriting(input.slug, oldSlug);
+  const isPublic = input.status === "published" && values.published_at &&
+    new Date(values.published_at) <= new Date();
   return {
     id: data.id,
+    publishedPath: isPublic ? `/writing/${input.slug}` : undefined,
     success:
       input.status === "published"
         ? values.published_at && new Date(values.published_at) > new Date()
