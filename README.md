@@ -28,7 +28,7 @@ Return to the writing desk to edit, unpublish, or permanently delete an article 
 
 - `content/site.ts`: greeting, homepage copy, navigation, domain, contact links, SEO defaults. The supplied LinkedIn, GitHub and X profiles are configured here.
 - `content/about.ts`: introduction, About sections, photograph and alt text.
-- `public/portrait-placeholder.svg`: an explicitly labeled local placeholder. Replace with your real photo and update the configuration.
+- `public/me.webp`: the About page photograph, imported in `content/about.ts` with its original dimensions.
 - `app/globals.css`: typography, spacing and color tokens.
 - `supabase/migrations/`: schema, owner authorization, RLS, storage.
 

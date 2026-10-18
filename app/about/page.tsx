@@ -18,11 +18,12 @@ export default function About() {
           <Image
             src={about.portrait}
             alt={about.portraitAlt}
-            width={480}
-            height={600}
+            sizes="(max-width: 600px) 200px, 188px"
             priority
           />
-          <figcaption>{about.portraitCaption}</figcaption>
+          {about.portraitCaption && (
+            <figcaption>{about.portraitCaption}</figcaption>
+          )}
         </figure>
         <p>{about.introduction}</p>
       </section>

@@ -1,9 +1,10 @@
-// Replace the local portrait placeholder with your own photograph in public/.
+import portrait from "@/public/me.webp";
+
 // Only facts supplied by the owner appear here. Unwritten sections stay editable.
 export const about = {
-  portrait: "/portrait-placeholder.svg",
-  portraitAlt: "A placeholder for a photograph of Vibhanshu Rathod",
-  portraitCaption: "A photograph will find its way here soon.",
+  portrait,
+  portraitAlt: "Vibhanshu Rathod",
+  portraitCaption: "",
   introduction:
     "I'm Vibhanshu. I like building things, figuring out how they work, and occasionally writing about them.",
   sections: [
