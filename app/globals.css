@@ -142,6 +142,10 @@ h2 {
 .intro-copy p + p {
   margin-top: 20px;
 }
+.intro-copy a {
+  text-decoration: underline;
+  text-decoration-color: #aaa59a;
+}
 .recent-writing {
   margin-top: 70px;
 }

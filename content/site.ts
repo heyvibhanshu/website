@@ -19,8 +19,15 @@ export const site = {
     greeting: "hey, i'm vibhanshu.",
     introduction: [
       "I like building things, figuring out how they work, and occasionally writing about them.",
-      "I'm currently building superOS at Maturate, where we're making technology easier for everyone to use.",
+      [
+        "I'm currently building ",
+        { label: "superOS", href: "https://www.superos.to/" },
+        " at ",
+        { label: "Maturate", href: "https://www.maturate.ai/" },
+        ", where we're making technology easier for everyone to use.",
+      ],
       "This is my little corner of the internet. A collection of thoughts, experiments, things I've learned, and whatever else catches my curiosity.",
     ],
+    postscript: "PS: my friends call me vibe. :D",
   },
 };

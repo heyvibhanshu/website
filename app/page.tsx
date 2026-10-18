@@ -12,8 +12,21 @@ export default async function Home() {
         <h1>{site.home.greeting}</h1>
         <div className="intro-copy">
           {site.home.introduction.map((paragraph, i) => (
-            <p key={i}>{paragraph}</p>
+            <p key={i}>
+              {Array.isArray(paragraph)
+                ? paragraph.map((part, j) =>
+                    typeof part === "string" ? (
+                      part
+                    ) : (
+                      <a key={j} href={part.href}>
+                        {part.label}
+                      </a>
+                    ),
+                  )
+                : paragraph}
+            </p>
           ))}
+          <p>{site.home.postscript}</p>
         </div>
       </section>
       <section className="recent-writing" aria-labelledby="recent-heading">
