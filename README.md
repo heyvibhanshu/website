@@ -4,7 +4,7 @@
 
 ## Run locally
 
-Use Node.js **22 or newer** (24 LTS recommended).
+Use Node.js **24.x**.
 
 ```sh
 npm ci
@@ -26,7 +26,7 @@ Return to the writing desk to edit, unpublish, or permanently delete an article 
 
 ## Edit the site
 
-- `content/site.ts`: greeting, homepage copy, navigation, domain, contact links, SEO defaults. Add the exact LinkedIn URL here when available; the link stays hidden until configured.
+- `content/site.ts`: greeting, homepage copy, navigation, domain, contact links, SEO defaults. The supplied LinkedIn, GitHub and X profiles are configured here.
 - `content/about.ts`: introduction, About sections, photograph and alt text.
 - `public/portrait-placeholder.svg`: an explicitly labeled local placeholder. Replace with your real photo and update the configuration.
 - `app/globals.css`: typography, spacing and color tokens.

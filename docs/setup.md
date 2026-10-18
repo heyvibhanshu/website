@@ -2,7 +2,7 @@
 
 No external service is created or modified by running this application. Configure your own Supabase project before using the CMS.
 
-1. Create a Supabase project. In its SQL editor, run `supabase/migrations/202610180001_notebook.sql`. Alternatively link the Supabase CLI to your project and run `supabase db push` after reviewing the migration. Apply each migration once.
+1. Create a Supabase project. In its SQL editor, run each SQL file in `supabase/migrations/` in filename order. Alternatively link the Supabase CLI to your project and run `supabase db push` after reviewing the migration. Apply each migration once.
 2. Under Authentication → Providers, enable Email/password and **disable new user signups**. Use Authentication → Users to create your owner account with a strong unique password. Confirm its email. This app deliberately provides no public signup or password reset flow; manage recovery through Supabase.
 3. Copy the account's UUID, then run the following in the SQL editor, replacing the placeholder locally. Do not commit the resulting personal configuration:
 

@@ -12,8 +12,8 @@ export const site = {
   ],
   socials: {
     x: "https://x.com/heyvibhanshu",
-    github: "https://github.com/crazi-vibe",
-    linkedin: "", // Set the exact profile URL to show this link.
+    github: "https://github.com/heyvibhanshu",
+    linkedin: "https://www.linkedin.com/in/heyvibhanshu/",
   },
   home: {
     greeting: "hey, i'm vibhanshu.",

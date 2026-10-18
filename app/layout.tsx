@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Header, Footer } from "@/components/shell";
 import { site } from "@/content/site";
 import "./globals.css";
@@ -43,6 +45,8 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

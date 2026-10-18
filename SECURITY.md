@@ -3,7 +3,7 @@
 Please avoid public issues containing credentials or private content. Contact the maintainer at hey@vibhanshurathod.com for sensitive reports.
 
 - Supabase Row Level Security is the authorization boundary. Public reads allow only `published` posts whose publication date has arrived. Drafts and scheduled posts remain owner-only.
-- One explicitly authorized auth UUID lives in `site_owner`. Only a trusted SQL operator can change authorization. The `is_site_owner` security-definer function uses an empty search path and qualified names.
+- One explicitly authorized auth UUID lives in `site_owner`. Only a trusted SQL operator can change authorization. The `is_site_owner` function uses caller privileges, an empty search path and qualified names. Its lookup respects RLS, and anonymous users cannot execute it.
 - Every private page and every content/upload mutation checks the current user with Supabase Auth and checks owner authorization. Mutation input is validated with Zod. No service-role key is used.
 - Public pages use a separate anonymous, uncached Supabase client, never the owner's cookies. Private routes are dynamic and return private/no-store cache headers.
 - Next.js Server Actions enforce same-origin requests. The app does not expose unauthenticated write APIs. Supabase SSR refreshes cookies on CMS routes.

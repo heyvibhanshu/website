@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 const owner = "11111111-1111-4111-8111-111111111111";
 const stranger = "22222222-2222-4222-8222-222222222222";
 let db: PGlite;
@@ -34,15 +34,10 @@ beforeAll(async () => {
     create function storage.foldername(text) returns text[] language sql immutable as $$ select string_to_array($1, '/'); $$;
     insert into auth.users values ('${owner}'), ('${stranger}');
   `);
-  await db.exec(
-    await readFile(
-      new URL(
-        "../supabase/migrations/202610180001_notebook.sql",
-        import.meta.url,
-      ),
-      "utf8",
-    ),
-  );
+  const migrationDir = new URL("../supabase/migrations/", import.meta.url);
+  for (const filename of (await readdir(migrationDir)).filter(name => name.endsWith(".sql")).sort()) {
+    await db.exec(await readFile(new URL(filename, migrationDir), "utf8"));
+  }
   await db.exec(`insert into public.site_owner values (true, '${owner}');
     insert into public.posts (slug,title,content,status,published_at) values
       ('draft','Private draft','secret draft','draft',null),
@@ -53,6 +48,14 @@ afterAll(async () => {
   await db?.close();
 });
 describe("PostgreSQL row level security", () => {
+  it("uses caller privileges and blocks anonymous owner RPC access", async () => {
+    const result = await db.query("select prosecdef from pg_proc where oid = 'public.is_site_owner()'::regprocedure");
+    expect(result.rows).toEqual([{ prosecdef: false }]);
+    await asRole('anon', '', async () => {
+      await expect(db.query('select public.is_site_owner()')).rejects.toThrow();
+    });
+  });
+
   it("exposes only already-published writing to anonymous and unrelated users", async () => {
     for (const [role, uid] of [
       ["anon", ""],
