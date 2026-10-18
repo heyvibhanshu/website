@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -11,6 +11,7 @@ import {
   imageExtension,
 } from "@/lib/validation";
 import type { ActionResult } from "@/lib/types";
+import { PUBLISHED_WRITING_TAG } from "@/lib/cache-policy";
 export async function login(
   _previous: ActionResult,
   form: FormData,
@@ -34,6 +35,9 @@ export async function logout() {
   redirect("/cms-admin/login");
 }
 function refreshWriting(slug?: string, oldSlug?: string) {
+  // Expire immediately: unpublishing must not serve a stale public article.
+  updateTag(PUBLISHED_WRITING_TAG);
+  revalidatePath("/writing", "layout");
   ["/", "/writing", "/sitemap.xml", "/rss.xml", "/cms-admin"].forEach((p) =>
     revalidatePath(p),
   );

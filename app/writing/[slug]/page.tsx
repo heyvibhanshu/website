@@ -5,7 +5,10 @@ import { getPublishedPost, getPublishedPosts } from "@/lib/posts";
 import { formatDate, readingTime, safeJson } from "@/lib/utils";
 import { Markdown } from "@/components/writing/markdown";
 import { site } from "@/content/site";
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+export async function generateStaticParams() {
+  return (await getPublishedPosts()).map(({ slug }) => ({ slug }));
+}
 type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

@@ -60,3 +60,41 @@ test("public notebook and private route boundaries", async ({
   });
   expect(errors).toEqual([]);
 });
+
+test("main tabs preserve the document and shared header", async ({ page }) => {
+  const documents: string[] = [];
+  page.on("request", (request) => {
+    if (request.resourceType() === "document") documents.push(request.url());
+  });
+  await page.goto("/");
+  await page.evaluate(() => {
+    document.documentElement.dataset.navigationMarker = "preserved";
+  });
+  const header = await page.locator(".site-header").elementHandle();
+  for (const [label, heading] of [
+    ["writing", "writing."],
+    ["about", "about me."],
+    ["writing", "writing."],
+  ]) {
+    await page
+      .getByRole("navigation", { name: "Main navigation" })
+      .getByRole("link", { name: label, exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: heading, exact: true }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.dataset.navigationMarker,
+      ),
+    ).toBe("preserved");
+    expect(await header!.evaluate((element) => element.isConnected)).toBe(true);
+  }
+  await page
+    .getByRole("link", { name: "vibhanshu rathod", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "hey, i'm vibhanshu." }),
+  ).toBeVisible();
+  expect(documents).toHaveLength(1);
+});

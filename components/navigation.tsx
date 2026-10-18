@@ -13,6 +13,7 @@ export function Navigation() {
           <Link
             key={href}
             href={href}
+            prefetch={true}
             aria-current={active ? "page" : undefined}
           >
             {label}

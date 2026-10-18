@@ -5,7 +5,7 @@ export function Header() {
   return (
     <header className="site-header">
       <div className="shell header-inner">
-        <Link href="/" className="wordmark">
+        <Link href="/" className="wordmark" prefetch={true}>
           vibhanshu rathod
         </Link>
         <Navigation />

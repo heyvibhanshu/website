@@ -1,8 +1,13 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseConfig } from "@/lib/supabase/config";
 import type { Post, PostSummary } from "@/lib/types";
+import {
+  PUBLISHED_WRITING_TAG,
+  PUBLIC_REVALIDATE_SECONDS,
+} from "@/lib/cache-policy";
 // Always anonymous: public rendering never inherits the owner's session or draft access.
 function publicClient() {
   const config = supabaseConfig();
@@ -15,7 +20,7 @@ function publicClient() {
       })
     : null;
 }
-export const getPublishedPosts = cache(
+const readPublishedPosts = unstable_cache(
   async (limit?: number): Promise<PostSummary[]> => {
     const client = publicClient();
     if (!client) return [];
@@ -39,8 +44,11 @@ export const getPublishedPosts = cache(
     }
     return posts;
   },
+  ["published-posts", supabaseConfig()?.url ?? "unconfigured"],
+  { tags: [PUBLISHED_WRITING_TAG], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
-export const getPublishedPost = cache(
+export const getPublishedPosts = cache(readPublishedPosts);
+const readPublishedPost = unstable_cache(
   async (slug: string): Promise<Post | null> => {
     const client = publicClient();
     if (!client) return null;
@@ -54,4 +62,7 @@ export const getPublishedPost = cache(
     if (error) throw new Error("This article is temporarily unavailable.");
     return data as Post | null;
   },
+  ["published-post", supabaseConfig()?.url ?? "unconfigured"],
+  { tags: [PUBLISHED_WRITING_TAG], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
+export const getPublishedPost = cache(readPublishedPost);

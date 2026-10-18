@@ -2,7 +2,7 @@ import Link from "next/link";
 import { site } from "@/content/site";
 import { getPublishedPosts } from "@/lib/posts";
 import { EmptyWriting, PostList } from "@/components/writing/post-list";
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 export const metadata = { alternates: { canonical: "/" } };
 export default async function Home() {
   const posts = await getPublishedPosts(5);

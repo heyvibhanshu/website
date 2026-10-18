@@ -6,11 +6,16 @@ import { Header, Footer } from "@/components/shell";
 import { site } from "@/content/site";
 import "./globals.css";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
-const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
+const mono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  preload: false,
+});
 const newsreader = Newsreader({
   subsets: ["latin"],
   variable: "--font-newsreader",
   style: ["normal", "italic"],
+  preload: false,
 });
 export const viewport: Viewport = { themeColor: "#FAF9F6" };
 export const metadata: Metadata = {
