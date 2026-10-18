@@ -4,6 +4,7 @@ import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { parseAdminPath } from "../lib/admin-path";
 import { proxy, config } from "../proxy";
 import { requireAdminRoute } from "../lib/admin-route";
+import { adminMetadata } from "../lib/admin-metadata";
 
 const claims = vi.hoisted(() => vi.fn(async () => ({ data: null, error: null })));
 vi.mock("server-only", () => ({}));
@@ -13,6 +14,13 @@ vi.mock("next/navigation", () => ({ notFound: () => { throw Error("NOT_FOUND"); 
 afterEach(() => { vi.unstubAllEnvs(); claims.mockClear(); });
 
 describe("environment-configured writing desk", () => {
+  it("does not give unknown URLs a writing-desk browser title", async () => {
+    vi.stubEnv("CMS_ADMIN_PATH", "/test-desk");
+    const wrong = await adminMetadata(Promise.resolve({ desk: "missing" }), "New Article");
+    expect(wrong.title).toEqual({ absolute: "Page Not Found | Vibhanshu Rathod" });
+    const valid = await adminMetadata(Promise.resolve({ desk: "test-desk" }), "New Article");
+    expect(valid.title).toBe("New Article");
+  });
   it("has no default, rejects unsafe and reserved paths, and accepts a chosen segment", () => {
     for (const value of [undefined, "", "/", "/admin", "/writing", "/about", "//example.com", "/desk/login", "/desk?x=1", "/Uppercase", "/desk.html", "/_next"])
       expect(parseAdminPath(value)).toBeNull();

@@ -20,7 +20,7 @@ export default async function Dashboard({ params }: { params: Promise<{ desk: st
     <>
       <div className="admin-top">
         <div>
-          <h1>the writing desk.</h1>
+          <h1>The writing desk.</h1>
         </div>
         <form action={logout}>
           <button className="text-button">Sign out</button>

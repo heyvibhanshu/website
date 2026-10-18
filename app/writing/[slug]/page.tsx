@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublishedPost, getPublishedPosts } from "@/lib/posts";
-import { formatDate, readingTime, safeJson } from "@/lib/utils";
+import { browserTitle, formatDate, readingTime, safeJson } from "@/lib/utils";
 import { Markdown } from "@/components/writing/markdown";
 import { site } from "@/content/site";
 export const revalidate = 60;
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = post.seo_description || post.description || undefined;
   const preview = `/writing/${post.slug}/preview?v=${encodeURIComponent(post.updated_at)}`;
   return {
-    title,
+    title: browserTitle(title),
     description,
     alternates: { canonical: `/writing/${post.slug}` },
     openGraph: {

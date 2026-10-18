@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, useTransition, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, unstable_isUnrecognizedActionError } from "next/navigation";
 import { Markdown } from "@/components/writing/markdown";
 import { savePost, deletePost, uploadImage } from "@/app/[desk]/actions";
 import { useAdminPath } from "@/components/admin/admin-path";
@@ -84,9 +84,11 @@ export function Editor({ post }: { post?: Post }) {
           if (!id) router.replace(`${adminPath}/${result.id}`);
           router.refresh();
         }
-      } catch {
+      } catch (error) {
         setMessage({
-          error: "Couldn’t save. Your writing is still here; please try again.",
+          error: unstable_isUnrecognizedActionError(error)
+            ? "The editor has been updated. Copy your unsaved writing, then reopen the latest writing desk and try again."
+            : "Couldn’t save. Your writing is still here; please try again.",
         });
       }
     });
@@ -107,7 +109,7 @@ export function Editor({ post }: { post?: Post }) {
       await navigator.clipboard.writeText(MARKDOWN_GUIDE);
       setGuideMessage("Guide copied. Paste it into your LLM with your article text.");
     } catch {
-      setGuideMessage("Select and copy the guide below.");
+      setGuideMessage("Couldn’t copy the prompt. Please allow clipboard access and try again.");
     }
   }
   function insertImage() {
@@ -180,7 +182,7 @@ export function Editor({ post }: { post?: Post }) {
         ← writing desk
       </Link>
       <div className="editor-heading">
-        <h1>{id ? "edit article." : "a new thought."}</h1>
+        <h1>{id ? "Edit Article." : "A New Thought."}</h1>
         <span className="status">
           {status}
           {dirty ? " · unsaved" : ""}
@@ -264,8 +266,8 @@ export function Editor({ post }: { post?: Post }) {
           >
             <ToolbarIcon kind="image" />
           </button>
-          <button type="button" aria-label="Copy formatting prompt" title="Copy formatting prompt" onClick={copyGuide}>
-            <ToolbarIcon kind="copy" />
+          <button className="prompt-button" type="button" title="Copy LLM formatting prompt" onClick={copyGuide}>
+            llm prompt
           </button>
         </div>
         <div className="editor-split">
@@ -295,14 +297,6 @@ export function Editor({ post }: { post?: Post }) {
         </div>
         <p className="field-hint markdown-help" id="markdown-help">Select text, then choose a format. Scroll each panel to read longer articles.</p>
         <p className="field-hint" role="status">{guideMessage}</p>
-        <details className="editor-details">
-          <summary>Markdown examples & LLM formatting guide</summary>
-          <p className="field-hint">Copy these rules with your text into an LLM, then paste its Markdown into the editor. This guide is separate from your article.</p>
-          <label>
-            Supported syntax and examples
-            <textarea className="markdown-guide" readOnly value={MARKDOWN_GUIDE} rows={14} onFocus={(event) => event.target.select()} />
-          </label>
-        </details>
         <details className="editor-details">
           <summary>Publication & search settings</summary>
           <label>

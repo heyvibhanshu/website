@@ -16,7 +16,7 @@ export const site = {
     linkedin: "https://www.linkedin.com/in/heyvibhanshu/",
   },
   home: {
-    greeting: "hey, i'm vibhanshu.",
+    greeting: "Hey, I'm Vibhanshu.",
     introduction: [
       "I like building things, figuring out how they work, and occasionally writing about them.",
       [

@@ -15,7 +15,7 @@ export default async function Writing() {
   return (
     <>
       <div className="page-heading">
-        <h1>writing.</h1>
+        <h1>Writing.</h1>
         <p>
           Thoughts, ideas, experiments, and things I&apos;ve learned along the
           way.

@@ -11,7 +11,7 @@ export default function About() {
   return (
     <>
       <div className="page-heading">
-        <h1>about me.</h1>
+        <h1>About me.</h1>
       </div>
       <section className="about-introduction" aria-label="Introduction">
         <figure>

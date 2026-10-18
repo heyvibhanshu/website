@@ -84,7 +84,7 @@ test("main tabs preserve the document and shared header", async ({ page }) => {
       .getByRole("link", { name: label, exact: true })
       .click();
     await expect(
-      page.getByRole("heading", { name: heading, exact: true }),
+      page.getByRole("heading", { name: new RegExp(`^${heading.replace(/\./g, "\\.")}$`, "i") }),
     ).toBeVisible();
     expect(
       await page.evaluate(

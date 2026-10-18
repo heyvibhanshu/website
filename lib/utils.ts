@@ -1,3 +1,9 @@
+export function browserTitle(value: string) {
+  const title = value.trim().replace(/\.+$/u, "").trimEnd();
+  const [first = "", ...rest] = Array.from(title);
+  return first.toLocaleUpperCase("en") + rest.join("");
+}
+
 export function slugify(value: string) {
   return value
     .normalize("NFKD")

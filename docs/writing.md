@@ -18,11 +18,11 @@ A paragraph with **bold**, *italic*, <u>underline</u>, ~~strikethrough~~, and a 
 - [An optional reference](https://example.com)
 ```
 
-The Sources toolbar button adds an optional linked reference section at the end; subsequent clicks add another entry to the existing section. Replace the sample labels and URLs with real references. Article titles retain the casing you enter; sentence case with proper nouns capitalized is recommended.
+The Sources toolbar button adds an optional linked reference section at the end; subsequent clicks add another entry to the existing section. Replace the sample labels and URLs with real references. Article titles are stored exactly as entered. Page headings display lowercase using CSS; browser titles capitalize the first letter, remove trailing full stops, and append `| Vibhanshu Rathod`.
 
 The image toolbar button opens a dialog for a file, meaningful alt text, and an optional caption. Upload inserts the Markdown at the saved editor selection. HTTPS and local image paths are supported. A caption does not replace alt text. Compress large photographs before upload.
 
-Use the copy icon in the toolbar to copy the formatting prompt for an LLM. The expandable guide contains the same rules and examples. New articles start with sample Markdown to replace before publishing.
+Use the **llm prompt** button in the toolbar to copy the formatting rules and examples for an LLM. New articles start with sample Markdown to replace before publishing.
 
 For an explicitly approved YouTube embed, use a fenced block with language `youtube` and only the 11-character video ID as its body. The renderer builds a privacy-enhanced `youtube-nocookie.com` iframe. Arbitrary iframe HTML and other embed hosts are not supported.
 

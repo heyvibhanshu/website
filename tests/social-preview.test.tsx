@@ -40,4 +40,10 @@ describe("social link previews", () => {
     expect(response.status).toBe(404);
     expect(await response.text()).toBe("Not found");
   });
+  it("removes trailing full stops only from the browser title", async () => {
+    vi.mocked(getPublishedPost).mockResolvedValue({ ...post, title: "a thought.", seo_title: null });
+    const metadata = await generateMetadata({ params: Promise.resolve({ slug: post.slug }) });
+    expect(metadata.title).toBe("A thought");
+    expect(metadata.openGraph?.title).toBe("a thought.");
+  });
 });

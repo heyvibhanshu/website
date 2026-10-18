@@ -1,4 +1,5 @@
 import Link from "next/link";
+export const metadata = { title: "Page Not Found", robots: { index: false } };
 export default function NotFound() {
   return (
     <div className="page-heading">
