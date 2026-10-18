@@ -17,7 +17,10 @@ const newsreader = Newsreader({
   style: ["normal", "italic"],
   preload: false,
 });
-export const viewport: Viewport = { themeColor: "#FAF9F6" };
+export const viewport: Viewport = {
+  themeColor: "#FAF9F6",
+  viewportFit: "cover",
+};
 export const metadata: Metadata = {
   metadataBase: new URL(site.domain),
   title: { default: site.title, template: `%s | ${site.name}` },

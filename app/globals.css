@@ -780,6 +780,9 @@ dialog p {
   }
 }
 @media (max-width: 600px) {
+  html {
+    scroll-padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  }
   .shell {
     width: calc(100% - 40px);
   }
@@ -796,7 +799,7 @@ dialog p {
   }
   .main-content {
     padding-top: 58px;
-    padding-bottom: 75px;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   }
   .intro-copy {
     font-size: 16px;
@@ -807,7 +810,9 @@ dialog p {
     margin-top: 52px;
   }
   .site-footer {
-    position: static;
+    position: fixed;
+    inset-inline: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .footer-inner {
     min-height: 56px;
