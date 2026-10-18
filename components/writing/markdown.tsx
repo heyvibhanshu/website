@@ -11,8 +11,7 @@ export function Markdown({ content }: { content: string }) {
         components={{
           a({ href, children, node, ...props }) {
             void node;
-            const external =
-              href?.startsWith("https://") || href?.startsWith("http://");
+            const external = /^(?:https?:)?\/\//i.test(href || "");
             return (
               <a
                 href={href}

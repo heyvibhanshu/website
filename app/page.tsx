@@ -18,8 +18,14 @@ export default async function Home() {
                     typeof part === "string" ? (
                       part
                     ) : (
-                      <a key={j} href={part.href}>
+                      <a
+                        key={j}
+                        href={part.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         {part.label}
+                        <span className="sr-only"> (opens in a new tab)</span>
                       </a>
                     ),
                   )
