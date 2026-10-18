@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { requireAdminRoute } from "@/lib/admin-route";
 import { AdminPathProvider } from "@/components/admin/admin-path";
+import { site } from "@/content/site";
 export const metadata: Metadata = {
-  title: "Writing Desk",
+  title: { default: "Writing Desk", template: `%s | ${site.name}` },
   robots: { index: false, follow: false },
   openGraph: null,
   twitter: null,
