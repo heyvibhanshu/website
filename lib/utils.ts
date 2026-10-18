@@ -1,7 +1,9 @@
 export function browserTitle(value: string) {
   const title = value.trim().replace(/\.+$/u, "").trimEnd();
-  const [first = "", ...rest] = Array.from(title);
-  return first.toLocaleUpperCase("en") + rest.join("");
+  return title.replace(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu, (word) => {
+    const [first = "", ...rest] = Array.from(word);
+    return first.toLocaleUpperCase("en") + rest.join("");
+  });
 }
 
 export function slugify(value: string) {

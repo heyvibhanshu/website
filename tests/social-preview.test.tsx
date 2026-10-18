@@ -43,7 +43,7 @@ describe("social link previews", () => {
   it("removes trailing full stops only from the browser title", async () => {
     vi.mocked(getPublishedPost).mockResolvedValue({ ...post, title: "a thought.", seo_title: null });
     const metadata = await generateMetadata({ params: Promise.resolve({ slug: post.slug }) });
-    expect(metadata.title).toBe("A thought");
+    expect(metadata.title).toBe("A Thought");
     expect(metadata.openGraph?.title).toBe("a thought.");
   });
 });

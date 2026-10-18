@@ -266,8 +266,8 @@ export function Editor({ post }: { post?: Post }) {
           >
             <ToolbarIcon kind="image" />
           </button>
-          <button className="prompt-button" type="button" title="Copy LLM formatting prompt" onClick={copyGuide}>
-            llm prompt
+          <button className="prompt-button" type="button" title="Copy Prompt" onClick={copyGuide}>
+            Copy Prompt
           </button>
         </div>
         <div className="editor-split">
