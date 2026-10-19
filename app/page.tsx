@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { site } from "@/content/site";
 import { getPublishedPosts } from "@/lib/posts";
+import { headingTitle } from "@/lib/utils";
 import { EmptyWriting, PostList } from "@/components/writing/post-list";
 export const revalidate = 60;
 export const metadata = { alternates: { canonical: "/" } };
@@ -9,7 +10,7 @@ export default async function Home() {
   return (
     <>
       <section className="introduction">
-        <h1>{site.home.greeting}</h1>
+        <h1>{headingTitle(site.home.greeting)}</h1>
         <div className="intro-copy">
           {site.home.introduction.map((paragraph, i) => (
             <p key={i}>

@@ -1,3 +1,8 @@
+export function headingTitle(value: string) {
+  const title = value.trimEnd();
+  return title && !title.endsWith(".") ? `${title}.` : title;
+}
+
 export function browserTitle(value: string) {
   const title = value.trim().replace(/\.+$/u, "").trimEnd();
   return title.replace(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu, (word) => {

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublishedPost, getPublishedPosts } from "@/lib/posts";
-import { browserTitle, formatDate, readingTime, safeJson } from "@/lib/utils";
+import { browserTitle, formatDate, headingTitle, readingTime, safeJson } from "@/lib/utils";
 import { Markdown } from "@/components/writing/markdown";
 import { site } from "@/content/site";
 export const revalidate = 60;
@@ -52,7 +52,7 @@ export default async function Article({ params }: Props) {
         </time>
       </div>
       <header className="article-heading">
-        <h1>{post.title}</h1>
+        <h1>{headingTitle(post.title)}</h1>
         {post.description && <p className="subtitle">{post.description}</p>}
         <p className="reading-time">{readingTime(post.content)} min read</p>
       </header>
