@@ -12,7 +12,8 @@ export default function About() {
     src: about.portrait,
     alt: about.portraitAlt,
     sizes: "(max-width: 600px) 200px, 188px",
-    loading: "eager",
+    // Route prefetching must not download the portrait on other pages.
+    loading: "lazy",
     fetchPriority: "high",
   });
   return (

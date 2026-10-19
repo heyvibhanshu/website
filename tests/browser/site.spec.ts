@@ -1,5 +1,23 @@
 import { test, expect } from "@playwright/test";
 const desk = process.env.CMS_ADMIN_PATH;
+test("home prefetching does not download other pages' images", async ({ page }) => {
+  const images: string[] = [];
+  page.on("request", (request) => {
+    if (request.resourceType() === "image") images.push(request.url());
+  });
+  await page.goto("/");
+  await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
+  // Allow production route prefetches and their resource hints to finish.
+  await page.waitForTimeout(2000);
+  expect(images.filter((url) => !new URL(url).pathname.endsWith("icon.svg"))).toEqual([]);
+  await page.getByRole("link", { name: "about", exact: true }).click();
+  await expect(page.locator(".about-introduction img")).toBeVisible();
+  await expect.poll(() => page.locator(".about-introduction img").evaluate(
+    (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+  )).toBe(true);
+  expect(images.some((url) => new URL(url).pathname === "/_next/image")).toBe(true);
+});
+
 test("public notebook and private route boundaries", async ({
   page,
   request,
