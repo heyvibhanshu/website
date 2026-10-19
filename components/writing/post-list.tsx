@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { IntentLink } from "@/components/intent-link";
 import type { PostSummary } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 export function PostList({
@@ -12,7 +12,7 @@ export function PostList({
     <ul className="post-list">
       {posts.map((post) => (
         <li key={post.id}>
-          <Link href={`/writing/${post.slug}`}>{post.title}</Link>
+          <IntentLink href={`/writing/${post.slug}`}>{post.title}</IntentLink>
           <time dateTime={post.published_at!}>
             {formatDate(post.published_at!, archive ? "archive" : "short")}
           </time>

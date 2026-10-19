@@ -5,11 +5,14 @@ import { MARKDOWN_EXAMPLE } from "../content/markdown-guide";
 describe("untrusted Markdown", () => {
   it("renders the editor examples including safe underline and nested formatting", () => {
     const html = renderToStaticMarkup(<Markdown content={MARKDOWN_EXAMPLE} />);
-    for (const tag of ["<h2>", "<h3>", "<h4>", "<strong>", "<em>", "<u>", "<del>", "<blockquote>", "<ul>", "<ol>", "<table>", "<img", "<iframe"])
+    for (const tag of ["<h2>", "<h3>", "<h4>", "<strong>", "<em>", "<u>", "<del>", "<blockquote>", "<ul>", "<ol>", "<table>", "<img"])
       expect(html).toContain(tag);
     expect(html).toContain("Sources</h2>");
     expect(html).not.toContain('type="checkbox"');
-    expect(html).toContain('youtube-nocookie.com/embed/dQw4w9WgXcQ');
+    expect(html).toContain('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    expect(html).toContain('Play YouTube video');
+    expect(html).not.toContain('<iframe');
+    expect(html).not.toContain('src="https://www.youtube');
     expect(renderToStaticMarkup(<Markdown content={'A <u>**bold** and *italic*</u> word.'} />)).toContain('<u><strong>bold</strong> and <em>italic</em></u>');
   });
   it("does not interpret underline attributes, escaped tags, or code as HTML", () => {

@@ -3,6 +3,7 @@ const devEval = process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : "";
 const config: NextConfig = {
   turbopack: { root: process.cwd() },
   poweredByHeader: false,
+  images: { imageSizes: [32, 48, 64, 96, 128, 200, 256, 384, 400] },
   experimental: { serverActions: { bodySizeLimit: "6mb" } },
   async redirects() {
     return [

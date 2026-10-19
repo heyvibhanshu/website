@@ -2,6 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import { remarkUnderline } from "@/lib/remark-underline";
+import { VideoEmbed } from "./video-embed";
 export function Markdown({ content }: { content: string }) {
   return (
     <div className="prose">
@@ -67,17 +68,7 @@ export function Markdown({ content }: { content: string }) {
             if (className?.split(/\s+/).includes("language-youtube")) {
               const id = String(children).trim();
               if (/^[a-zA-Z0-9_-]{11}$/.test(id))
-                return (
-                  <iframe
-                    className="video-embed"
-                    src={`https://www.youtube-nocookie.com/embed/${id}`}
-                    title="Embedded YouTube video"
-                    loading="lazy"
-                    sandbox="allow-scripts allow-same-origin allow-presentation"
-                    allowFullScreen
-                    referrerPolicy="strict-origin-when-cross-origin"
-                  />
-                );
+                return <VideoEmbed id={id} />;
             }
             return (
               <code className={className} {...props}>

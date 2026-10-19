@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { IntentLink } from "@/components/intent-link";
 import { notFound } from "next/navigation";
 import { getPublishedPost, getPublishedPosts } from "@/lib/posts";
 import { browserTitle, formatDate, headingTitle, readingTime, safeJson } from "@/lib/utils";
@@ -60,18 +61,18 @@ export default async function Article({ params }: Props) {
       <nav className="article-pagination" aria-label="Adjacent articles">
         <div>
           {older && (
-            <Link href={`/writing/${older.slug}`}>
+            <IntentLink href={`/writing/${older.slug}`}>
               <span>← previous</span>
               {older.title}
-            </Link>
+            </IntentLink>
           )}
         </div>
         <div>
           {newer && (
-            <Link href={`/writing/${newer.slug}`}>
+            <IntentLink href={`/writing/${newer.slug}`}>
               <span>next →</span>
               {newer.title}
-            </Link>
+            </IntentLink>
           )}
         </div>
       </nav>

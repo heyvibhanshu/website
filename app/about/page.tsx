@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import { about } from "@/content/about";
 import { Markdown } from "@/components/writing/markdown";
 export const metadata = {
@@ -8,6 +8,13 @@ export const metadata = {
   alternates: { canonical: "/about" },
 };
 export default function About() {
+  const { props: portrait } = getImageProps({
+    src: about.portrait,
+    alt: about.portraitAlt,
+    sizes: "(max-width: 600px) 200px, 188px",
+    loading: "eager",
+    fetchPriority: "high",
+  });
   return (
     <>
       <div className="page-heading">
@@ -15,12 +22,7 @@ export default function About() {
       </div>
       <section className="about-introduction" aria-label="Introduction">
         <figure>
-          <Image
-            src={about.portrait}
-            alt={about.portraitAlt}
-            sizes="(max-width: 600px) 200px, 188px"
-            priority
-          />
+          <img {...portrait} />
           {about.portraitCaption && (
             <figcaption>{about.portraitCaption}</figcaption>
           )}
