@@ -1,5 +1,37 @@
 import { test, expect } from "@playwright/test";
 const desk = process.env.CMS_ADMIN_PATH;
+test("public landing pages do not load editor styles or article font definitions", async ({ page }) => {
+  const styles: Promise<string>[] = [];
+  page.on("response", (response) => {
+    if (new URL(response.url()).pathname.endsWith(".css"))
+      styles.push(response.text());
+  });
+  await page.goto("/");
+  await page.waitForTimeout(2000);
+  const css = (await Promise.all(styles)).join("\n");
+  expect(css).not.toContain(".formatting-toolbar");
+  expect(css).not.toContain("font-family:Newsreader");
+  expect(css).not.toContain("font-family:Geist Mono");
+  if (desk) {
+    await page.goto(`${desk}/login`);
+    await expect(page.locator(".setup-note")).toHaveCSS("border-top-style", "solid");
+    const allCss = (await Promise.all(styles)).join("\n");
+    expect(allCss).toContain(".formatting-toolbar");
+    expect(allCss).toContain("font-family:Newsreader");
+    // Exercise the moved editor rules without signing in or saving content.
+    await page.locator(".admin-area").evaluate((area) => {
+      area.insertAdjacentHTML("beforeend", '<div class="editor-split"><textarea class="markdown-input" aria-label="Style check"></textarea><div class="preview"><div class="preview-content"><div class="prose"><p>Preview</p></div></div></div></div>');
+    });
+    await expect(page.getByRole("textbox", { name: "Style check" })).toHaveCSS("resize", "none");
+    await expect(page.getByRole("textbox", { name: "Style check" })).toHaveCSS("font-size", "12px");
+    await expect(page.getByRole("textbox", { name: "Style check" })).toHaveCSS("font-family", /Geist Mono/);
+    await expect(page.locator(".preview .prose")).toHaveCSS("font-family", /Newsreader/);
+    const input = await page.getByRole("textbox", { name: "Style check" }).boundingBox();
+    const preview = await page.locator(".preview-content").boundingBox();
+    expect(input!.height).toBe(preview!.height);
+  }
+});
+
 test("home prefetching does not download other pages' images", async ({ page }) => {
   const images: string[] = [];
   page.on("request", (request) => {

@@ -7,6 +7,8 @@ vi.mock("next/og", () => ({ ImageResponse: class extends Response {
   constructor(element: ReactNode) { super(renderToStaticMarkup(element)); }
 } }));
 vi.mock("@/lib/posts", () => ({ getPublishedPost: vi.fn(), getPublishedPosts: vi.fn() }));
+// next/font is compiled by Next.js; metadata unit tests do not run that compiler.
+vi.mock("@/lib/reading-fonts", () => ({ readingFontClassName: "" }));
 import { getPublishedPost } from "../lib/posts";
 import HomeImage from "../app/opengraph-image";
 import { GET } from "../app/writing/[slug]/preview/route";

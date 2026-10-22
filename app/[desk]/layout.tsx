@@ -1,3 +1,5 @@
+import "./admin.css";
+import { readingFontClassName } from "@/lib/reading-fonts";
 import type { Metadata } from "next";
 import { requireAdminRoute } from "@/lib/admin-route";
 import { AdminPathProvider } from "@/components/admin/admin-path";
@@ -18,5 +20,5 @@ export default async function AdminLayout({
   params: Promise<{ desk: string }>;
 }) {
   const path = await requireAdminRoute(params);
-  return <AdminPathProvider path={path}><div className="admin-area">{children}</div></AdminPathProvider>;
+  return <AdminPathProvider path={path}><div className={`admin-area ${readingFontClassName}`}>{children}</div></AdminPathProvider>;
 }

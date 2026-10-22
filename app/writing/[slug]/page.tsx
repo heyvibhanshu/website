@@ -1,3 +1,4 @@
+import { readingFontClassName } from "@/lib/reading-fonts";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { IntentLink } from "@/components/intent-link";
@@ -29,7 +30,7 @@ export default async function Article({ params }: Props) {
   const older = posts[index + 1];
   const newer = posts[index - 1];
   return (
-    <article className="article">
+    <article className={`article ${readingFontClassName}`}>
       <div className="article-meta">
         <Link href="/writing">← all writing</Link>
         <time dateTime={post.published_at!}>
