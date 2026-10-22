@@ -3,5 +3,5 @@ export const alt = "Vibhanshu Rathod — This is my little corner of the interne
 export const size = socialImageSize;
 export const contentType = "image/png";
 export default function Image() {
-  return socialImage("hey, i'm vibhanshu.", "This is my little corner of the internet.");
+  return socialImage("hey, i'm vibhanshu.", "this is my little corner of the internet.");
 }

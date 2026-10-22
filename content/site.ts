@@ -3,7 +3,7 @@ export const site = {
   domain: "https://vibhanshurathod.com",
   title: "Vibhanshu Rathod",
   description:
-    "A little corner of the internet. Thoughts, experiments, and things learned along the way by Vibhanshu Rathod.",
+    "Thoughts, experiments, and things learned along the way by Vibhanshu Rathod.",
   email: "hey@vibhanshurathod.com",
   tagline: "be curious.",
   navigation: [

@@ -20,7 +20,8 @@ const post: Post = {
 describe("social link previews", () => {
   it("uses the requested homepage caption", async () => {
     const image = await HomeImage().text();
-    expect(image).toContain("This is my little corner of the internet.");
+    expect(image).toContain("this is my little corner of the internet.");
+    expect(image).not.toContain("vibhanshurathod.com");
     expect(image).not.toContain("personal notebook");
   });
   it("renders article-specific title and description and links both card types to it", async () => {
