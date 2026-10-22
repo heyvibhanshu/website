@@ -8,6 +8,7 @@ export async function adminMetadata(params: Promise<{ desk: string }>, title: st
   return {
     title: getAdminPath() === `/${desk}` ? title : { absolute: `Page Not Found | ${site.name}` },
     robots: { index: false, follow: false },
+    alternates: { canonical: null },
     openGraph: null,
     twitter: null,
   };

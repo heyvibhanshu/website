@@ -1,14 +1,19 @@
+import { seo } from "@/content/seo";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { pageGraph } from "@/lib/seo/structured-data";
+import { SeoJsonLd } from "@/components/seo-json-ld";
 import Link from "next/link";
 import { site } from "@/content/site";
 import { getPublishedPosts } from "@/lib/posts";
 import { headingTitle } from "@/lib/utils";
 import { EmptyWriting, PostList } from "@/components/writing/post-list";
 export const revalidate = 60;
-export const metadata = { alternates: { canonical: "/" } };
+export const metadata = pageMetadata({ ...seo.pages.home });
 export default async function Home() {
   const posts = await getPublishedPosts(5);
   return (
     <>
+      <SeoJsonLd data={pageGraph({ ...seo.pages.home })} />
       <section className="introduction">
         <h1>{headingTitle(site.home.greeting)}</h1>
         <div className="intro-copy">

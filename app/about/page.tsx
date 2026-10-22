@@ -1,12 +1,11 @@
+import { seo } from "@/content/seo";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { pageGraph } from "@/lib/seo/structured-data";
+import { SeoJsonLd } from "@/components/seo-json-ld";
 import { getImageProps } from "next/image";
 import { about } from "@/content/about";
 import { Markdown } from "@/components/writing/markdown";
-export const metadata = {
-  title: "About Me",
-  description:
-    "I'm Vibhanshu. I like building things, figuring out how they work, and occasionally writing about them.",
-  alternates: { canonical: "/about" },
-};
+export const metadata = pageMetadata({ ...seo.pages.about, type: "profile" });
 export default function About() {
   const { props: portrait } = getImageProps({
     src: about.portrait,
@@ -18,6 +17,7 @@ export default function About() {
   });
   return (
     <>
+      <SeoJsonLd data={pageGraph({ ...seo.pages.about, type: "ProfilePage", breadcrumbs: [{ name: "Home", path: "/" }, { name: seo.pages.about.title, path: "/about" }] })} />
       <div className="page-heading">
         <h1>About me.</h1>
       </div>

@@ -6,5 +6,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   const { slug } = await params;
   const post = await getPublishedPost(slug);
   if (!post) return new Response("Not found", { status: 404 });
-  return socialImage(post.title, post.description);
+  const response = socialImage(post.title, post.description);
+  response.headers.set("X-Robots-Tag", "noindex");
+  return response;
 }

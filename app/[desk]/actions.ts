@@ -1,5 +1,7 @@
 "use server";
 import { revalidatePath, updateTag } from "next/cache";
+import { after } from "next/server";
+import { runIndexNowSafely } from "@/lib/indexnow/worker";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -96,6 +98,7 @@ export async function savePost(form: FormData): Promise<ActionResult> {
           : "Couldn’t save this article. Please try again.",
     };
   refreshWriting(input.slug, oldSlug);
+  after(runIndexNowSafely);
   const isPublic = input.status === "published" && values.published_at &&
     new Date(values.published_at) <= new Date();
   return {
@@ -123,6 +126,7 @@ export async function deletePost(id: string): Promise<ActionResult> {
       error: "Couldn’t delete the article. It may have already been removed.",
     };
   refreshWriting(data.slug);
+  after(runIndexNowSafely);
   return { success: "Article deleted." };
 }
 export async function uploadImage(form: FormData): Promise<ActionResult> {

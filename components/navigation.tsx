@@ -1,12 +1,11 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { site } from "@/content/site";
-export function Navigation() {
+export function Navigation({ items }: { items: readonly { href: string; label: string }[] }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Main navigation">
-      {site.navigation.map(({ href, label }) => {
+      {items.map(({ href, label }) => {
         const active =
           href === "/" ? pathname === "/" : pathname.startsWith(href);
         return (

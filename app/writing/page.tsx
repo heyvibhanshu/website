@@ -1,12 +1,11 @@
+import { seo } from "@/content/seo";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { pageGraph } from "@/lib/seo/structured-data";
+import { SeoJsonLd } from "@/components/seo-json-ld";
 import { getPublishedPosts } from "@/lib/posts";
 import { EmptyWriting, PostList } from "@/components/writing/post-list";
 export const revalidate = 60;
-export const metadata = {
-  title: "Writing",
-  description:
-    "Thoughts, ideas, experiments, and things I've learned along the way.",
-  alternates: { canonical: "/writing" },
-};
+export const metadata = pageMetadata({ ...seo.pages.writing });
 export default async function Writing() {
   const posts = await getPublishedPosts();
   const years = Map.groupBy(posts, (post) =>
@@ -14,6 +13,7 @@ export default async function Writing() {
   );
   return (
     <>
+      <SeoJsonLd data={pageGraph({ ...seo.pages.writing, type: "CollectionPage", breadcrumbs: [{ name: "Home", path: "/" }, { name: seo.pages.writing.title, path: "/writing" }] })} />
       <div className="page-heading">
         <h1>Writing.</h1>
         <p>

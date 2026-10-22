@@ -1,8 +1,6 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/content/site";
+import { seo } from "@/content/seo";
+import { isPreviewDeployment } from "@/lib/seo/metadata";
 export default function robots(): MetadataRoute.Robots {
-  return {
-    rules: { userAgent: "*", allow: "/" },
-    sitemap: `${site.domain}/sitemap.xml`,
-  };
+  return isPreviewDeployment() ? { rules: { userAgent: "*", disallow: "/" } } : { rules: { userAgent: "*", allow: "/", disallow: ["/api/"] }, sitemap: `${seo.origin}/sitemap.xml` };
 }

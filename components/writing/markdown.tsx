@@ -11,6 +11,7 @@ export function Markdown({ content }: { content: string }) {
         rehypePlugins={[rehypeHighlight]}
         skipHtml
         components={{
+          h1({ children }) { return <h2>{children}</h2>; },
           a({ href, children, node, ...props }) {
             void node;
             const external = /^(?:https?:)?\/\//i.test(href || "");

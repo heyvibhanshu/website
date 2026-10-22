@@ -1,3 +1,5 @@
+vi.mock("next/server", () => ({ after: vi.fn() }));
+vi.mock("@/lib/indexnow/worker", () => ({ runIndexNowSafely: vi.fn() }));
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Post } from "../lib/types";
 const state = vi.hoisted(() => ({

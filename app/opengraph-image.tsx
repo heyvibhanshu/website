@@ -1,5 +1,6 @@
+import { seo } from "@/content/seo";
 import { socialImage, socialImageSize } from "@/lib/social-image";
-export const alt = "Vibhanshu Rathod — This is my little corner of the internet.";
+export const alt = seo.preview.alt;
 export const size = socialImageSize;
 export const contentType = "image/png";
 export default function Image() {

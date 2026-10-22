@@ -8,7 +8,7 @@ export function Header() {
         <Link href="/" className="wordmark" prefetch={true}>
           vibhanshu rathod
         </Link>
-        <Navigation />
+        <Navigation items={site.navigation} />
       </div>
     </header>
   );

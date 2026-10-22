@@ -32,5 +32,5 @@ export async function proxy(request: NextRequest) {
 // Public pages and assets bypass session refresh and keep their CDN caching.
 // The configured desk must be one non-reserved, extension-free path segment.
 export const config = {
-  matcher: ["/((?!writing(?:/|$)|about(?:/|$)|_next(?:/|$)|opengraph-image(?:/|$)|.*\\.).+)"],
+  matcher: ["/((?!writing(?:/|$)|about(?:/|$)|_next(?:/|$)|opengraph-image(?:/|$)|apple-icon(?:/|$)|.*\\.).+)"],
 };

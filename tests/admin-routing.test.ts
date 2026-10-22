@@ -34,7 +34,7 @@ describe("environment-configured writing desk", () => {
     await expect(requireAdminRoute(Promise.resolve({ desk: "test-desk" }))).resolves.toBe("/test-desk");
   });
   it("keeps public pages, article previews, and assets out of the auth proxy", () => {
-    for (const url of ["/", "/about", "/writing", "/writing/a-post", "/writing/a-post/preview", "/opengraph-image", "/me.webp", "/rss.xml", "/_next/static/file.js"])
+    for (const url of ["/", "/about", "/writing", "/writing/a-post", "/writing/a-post/preview", "/opengraph-image", "/apple-icon", "/me.webp", "/rss.xml", "/_next/static/file.js"])
       expect(unstable_doesMiddlewareMatch({ config, url })).toBe(false);
     for (const url of ["/test-desk", "/test-desk/login", "/test-desk/new"])
       expect(unstable_doesMiddlewareMatch({ config, url })).toBe(true);

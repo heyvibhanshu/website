@@ -1,4 +1,4 @@
-const reserved = new Set(["admin", "writing", "about", "blog", "api", "_next", "opengraph-image"]);
+const reserved = new Set(["admin", "writing", "about", "blog", "api", "_next", "opengraph-image", "sitemaps", "apple-icon"]);
 
 export function parseAdminPath(value: string | undefined): string | null {
   if (!value || !/^\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)) return null;

@@ -1,20 +1,16 @@
+import { seo } from "./seo";
 export const site = {
-  name: "Vibhanshu Rathod",
-  domain: "https://vibhanshurathod.com",
-  title: "Vibhanshu Rathod",
-  description:
-    "Thoughts, experiments, and things learned along the way by me.",
-  email: "hey@vibhanshurathod.com",
-  tagline: "be curious.",
+  name: seo.name,
+  domain: seo.origin,
+  title: seo.title,
+  description: seo.description,
+  email: seo.email,
+  tagline: seo.tagline,
   navigation: [
     { href: "/writing", label: "writing" },
     { href: "/about", label: "about" },
   ],
-  socials: {
-    x: "https://x.com/heyvibhanshu",
-    github: "https://github.com/heyvibhanshu",
-    linkedin: "https://www.linkedin.com/in/heyvibhanshu/",
-  },
+  socials: seo.socials,
   home: {
     greeting: "Hey, I'm Vibhanshu.",
     introduction: [

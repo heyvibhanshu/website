@@ -3,7 +3,8 @@ import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Header, Footer } from "@/components/shell";
-import { site } from "@/content/site";
+import { seo } from "@/content/seo";
+import { rootMetadata } from "@/lib/seo/metadata";
 import "./globals.css";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const mono = Geist_Mono({
@@ -18,30 +19,15 @@ const newsreader = Newsreader({
   preload: false,
 });
 export const viewport: Viewport = {
-  themeColor: "#FAF9F6",
+  themeColor: seo.themeColor,
   viewportFit: "cover",
 };
-export const metadata: Metadata = {
-  metadataBase: new URL(site.domain),
-  title: { default: site.title, template: `%s | ${site.name}` },
-  description: site.description,
-  alternates: { types: { "application/rss+xml": "/rss.xml" } },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    siteName: site.name,
-    title: site.title,
-    description: site.description,
-    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
-  },
-  twitter: { card: "summary_large_image", creator: "@heyvibhanshu" },
-  icons: { icon: "/icon.svg" },
-};
+export const metadata: Metadata = rootMetadata();
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang={seo.language}>
       <body
         className={`${geist.variable} ${newsreader.variable} ${mono.variable}`}
       >

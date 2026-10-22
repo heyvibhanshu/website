@@ -1,4 +1,4 @@
-import { beforeAll, afterAll, describe, it, expect } from "vitest";
+import { beforeAll, afterAll, beforeEach, afterEach, describe, it, expect } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { readFile, readdir } from "node:fs/promises";
 const owner = "11111111-1111-4111-8111-111111111111";
@@ -21,7 +21,8 @@ async function asRole<T>(
 beforeAll(async () => {
   db = new PGlite();
   await db.exec(`
-    create role anon; create role authenticated;
+    create role anon; create role authenticated; create role service_role bypassrls;
+    grant usage on schema public to service_role;
     create schema auth; create schema storage;
     create table auth.users (id uuid primary key);
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid; $$;
@@ -184,5 +185,102 @@ describe("PostgreSQL row level security", () => {
     );
     expect(result.rows).toEqual([{ slug: "published" }]);
     await db.exec(`update public.site_owner set user_id='${owner}'`);
+  });
+});
+
+
+describe("durable IndexNow outbox", () => {
+  beforeEach(async () => { await db.exec("begin; truncate public.indexnow_jobs; update public.indexnow_control set next_allowed_at='-infinity';"); });
+  afterEach(async () => { await db.exec("rollback;"); });
+  const jobs = () => db.query<{ path: string; kind: string; version: number; lease_token: string; available_at: Date; attempts: number; failed: boolean }>("select * from public.indexnow_jobs order by path");
+  const write = (sql: string) => asRole("authenticated", owner, () => db.exec(sql));
+  const claim = async () => {
+    await db.exec("set role service_role");
+    try { return await db.query<{ path: string }>("select * from public.claim_indexnow_jobs()"); }
+    finally { await db.exec("reset role"); }
+  };
+  it("accepts the existing About page without opening private or utility URL submission", async () => {
+    await write("insert into public.indexnow_jobs(path,kind) values ('/about','collection')");
+    expect((await claim()).rows.map(j=>j.path)).toEqual(['/about']);
+    await db.exec("savepoint private_path;");
+    await expect(write("insert into public.indexnow_jobs(path,kind) values ('/api/indexnow','collection')")).rejects.toThrow();
+    await db.exec("rollback to savepoint private_path; reset role;");
+  });
+  it("queues only public transitions, deduplicates changes, and leaves no-op dates unchanged", async () => {
+    await write("insert into public.posts(slug,title,content) values ('outbox','Outbox','Body')");
+    expect((await jobs()).rows).toHaveLength(0);
+    await write("update public.posts set status='published',published_at=now() where slug='outbox'");
+    const queued = (await jobs()).rows;
+    expect(queued.map(j=>j.path)).toEqual(['/', '/writing', '/writing/outbox']);
+    const before = (await db.query("select updated_at from public.posts where slug='outbox'")).rows;
+    await write("update public.posts set title=title where slug='outbox'");
+    expect((await jobs()).rows).toEqual(queued);
+    expect((await db.query("select updated_at from public.posts where slug='outbox'")).rows).toEqual(before);
+    await write("update public.posts set title='Updated title' where slug='outbox'");
+    expect((await jobs()).rows.find(j=>j.path==='/writing/outbox')?.version).toBe(2);
+  });
+  it("does not leak outbox rows or worker privileges to anonymous or unrelated users", async () => {
+    await db.exec("savepoint permissions; set role anon;");
+    await expect(db.query('select * from public.indexnow_jobs')).rejects.toThrow();
+    await db.exec("rollback to savepoint permissions; reset role;");
+    await asRole('authenticated', stranger, async () => {
+      expect((await db.query('select * from public.indexnow_jobs')).rows).toEqual([]);
+    });
+    await db.exec("savepoint rpc_permissions; set role authenticated;");
+    await expect(db.query('select * from public.claim_indexnow_jobs()')).rejects.toThrow();
+    await db.exec("rollback to savepoint rpc_permissions; reset role;");
+    const functions = await db.query("select prosecdef from pg_proc where oid in ('public.claim_indexnow_jobs()'::regprocedure, 'public.queue_post_indexnow()'::regprocedure)");
+    expect(functions.rows.every(row=>(row as { prosecdef: boolean }).prosecdef===false)).toBe(true);
+  });
+  it("retains scheduled publication without submitting early, and cancels a withdrawn schedule", async () => {
+    await write("insert into public.posts(slug,title,content,status,published_at) values ('outbox','Outbox','Body','published',now()+interval '1 day')");
+    expect((await jobs()).rows.map(j=>j.path)).toEqual(['/writing/outbox']);
+    expect((await claim()).rows).toEqual([]);
+    await write("update public.posts set status='draft' where slug='outbox'");
+    expect((await jobs()).rows).toEqual([]);
+  });
+  it("queues removal of old slugs and previously-public deleted articles", async () => {
+    await write("insert into public.posts(slug,title,content,status,published_at) values ('outbox','Outbox','Body','published',now())");
+    await write("update public.posts set slug='outbox-renamed' where slug='outbox'");
+    expect((await jobs()).rows.find(j=>j.path==='/writing/outbox')?.kind).toBe('removed');
+    await write("delete from public.posts where slug='outbox-renamed'");
+    expect((await jobs()).rows.find(j=>j.path==='/writing/outbox-renamed')?.kind).toBe('removed');
+  });
+  it("keeps deletion notifications after unpublishing and retains a renamed future publication", async () => {
+    await write("insert into public.posts(slug,title,content,status,published_at) values ('outbox','Outbox','Body','published',now())");
+    await write("update public.posts set slug='outbox-renamed',published_at=now()+interval '1 day' where slug='outbox'");
+    const future=(await jobs()).rows.find(j=>j.path==='/writing/outbox-renamed')!;
+    expect(future.kind).toBe('public');
+    expect(new Date(future.available_at).getTime()).toBeGreaterThan(Date.now());
+    expect((await claim()).rows.map(j=>j.path)).not.toContain('/writing/outbox-renamed');
+    await write("update public.posts set published_at=now() where slug='outbox-renamed'");
+    await write("update public.posts set status='draft' where slug='outbox-renamed'");
+    await write("delete from public.posts where slug='outbox-renamed'");
+    expect((await jobs()).rows.find(j=>j.path==='/writing/outbox-renamed')?.kind).toBe('removed');
+  });
+  it("leases once, preserves concurrent updates, and respects persistent retry cooldowns", async () => {
+    await write("insert into public.posts(slug,title,content,status,published_at) values ('outbox','Outbox','Body','published',now())");
+    const leased = (await claim()).rows;
+    expect(leased).toHaveLength(3);
+    expect((await claim()).rows).toHaveLength(0);
+    await write("update public.posts set title='Changed while sending' where slug='outbox'");
+    await db.query("select public.finish_indexnow_jobs($1::jsonb,'success',null,200)", [JSON.stringify(leased)]);
+    expect((await jobs()).rows).toHaveLength(3);
+    await db.exec("update public.indexnow_control set next_allowed_at='-infinity'");
+    const newer = (await claim()).rows;
+    await db.query("select public.finish_indexnow_jobs($1::jsonb,'retry',now()+interval '1 hour',429)", [JSON.stringify(newer)]);
+    expect((await claim()).rows).toHaveLength(0);
+    expect((await jobs()).rows.every(j=>j.lease_token===null && !j.failed)).toBe(true);
+  });
+  it("notifies removal when a public article is rescheduled, then retains its future publication", async () => {
+    await write("insert into public.posts(slug,title,content,status,published_at) values ('outbox','Outbox','Body','published',now())");
+    await write("update public.posts set published_at=now()+interval '1 day' where slug='outbox'");
+    expect((await jobs()).rows.find(j=>j.path==='/writing/outbox')?.kind).toBe('removed');
+    const leased=(await claim()).rows;
+    await db.query("select public.finish_indexnow_jobs($1::jsonb,'success',null,200)", [JSON.stringify(leased)]);
+    const remaining=(await jobs()).rows;
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0].kind).toBe('public');
+    expect(new Date(remaining[0].available_at).getTime()).toBeGreaterThan(Date.now());
   });
 });
